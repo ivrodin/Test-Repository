@@ -30,29 +30,28 @@ def separatorUnificator(data: str, sep: str, maxsplit: int):
             continue
         if flags == []:
             add_data_unif = True
-        if True in flags:
-            if i != len(sep):
-                i+=1
-                if item == sep[i]:
-                    flags.append(True)
-                    temp_str += item
-                    if len(flags) == len(sep):
-                        data_unif += sep_unif
-                        temp_str = ''
-                        flags = []
-                        i = 0
-                        counter += 1
-                        split_counter += 1
-                        continue
-                elif item == sep[0]:
-                    i = 0
-                    data_unif += temp_str
+        if True in flags and i != len(sep):
+            i+=1
+            if item == sep[i]:
+                flags.append(True)
+                temp_str += item
+                if len(flags) == len(sep):
+                    data_unif += sep_unif
                     temp_str = ''
-                else:
                     flags = []
-                    data_unif += temp_str + item
-                    temp_str = ''
-                    i = 0         
+                    i = 0
+                    counter += 1
+                    split_counter += 1
+                    continue
+            elif item == sep[0]:
+                i = 0
+                data_unif += temp_str
+                temp_str = ''
+            else:
+                flags = []
+                data_unif += temp_str + item
+                temp_str = ''
+                i = 0         
         if item == sep[0] and flags == []:
             flags.append(True)
             temp_str += item
