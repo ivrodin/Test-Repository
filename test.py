@@ -2,19 +2,19 @@ from typing import List
 import string
 
 def separatorCreator(data: str):
-    '''
+    """
     Returns separator not contained in input string (data)
-    '''
+    """
     all_ascii = string.printable
     for item in all_ascii:
         if item not in data:
             return item
 
 def separatorUnificator(data: str, sep: str, maxsplit: int):
-    '''
+    """
     Unificates n-symbolic separator to 1 symbol
     Returns list[data with unified separator, unified separator]
-    '''
+    """
     data_unif = ''
     temp_str = ''
     flags = []
@@ -65,9 +65,9 @@ def separatorUnificator(data: str, sep: str, maxsplit: int):
     return res
 
 def startSpaceCutter(data: str):
-    '''
+    """
     Cuts spaces in the beginning of the string
-    '''
+    """
     cutted_string = ''
     notSpace_flag = False
     for item in data:
@@ -80,9 +80,9 @@ def startSpaceCutter(data: str):
     return cutted_string
 
 def data_res_Appender(input: str, output: str, iter_item: str, iter_item_index: int, temp_items_string: str ):
-    '''
+    """
     Adds temporary string to output list and returns empty temporary string
-    '''
+    """
     if iter_item_index < len(input) - 1:
         temp_items_string += iter_item
     else:
@@ -100,7 +100,7 @@ def split(data: str, sep=None, maxsplit=-1):
     flag_unif = False
     if sep == None:
         sep = ' '
-    if len(sep) != 1 and maxsplit > 0:
+    if len(sep) != 1 and maxsplit != 0:
         data_sep_unif = separatorUnificator(data, sep, maxsplit)
         data = data_sep_unif[0]
         sep = data_sep_unif[1]
