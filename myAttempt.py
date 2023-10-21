@@ -4,7 +4,7 @@ class Counter:
         self.stop = stop
 
     def increment(self):
-        if self.start + 1 > self.stop:
+        if self.stop != None and self.start + 1 > self.stop:
             print("Maximal value is reached.")
         else:
             self.start += 1
@@ -12,7 +12,7 @@ class Counter:
     def get(self):
         print(self.start)
 
-c = Counter(start=42,stop=43)
+c = Counter(start=42)
 c.increment()
 c.increment()
 c.increment()
