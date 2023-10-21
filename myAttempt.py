@@ -12,11 +12,30 @@ class Counter:
     def get(self):
         print(self.start)
 
-c = Counter(start=42, stop=44)
-c.increment()
-c.increment()
-c.increment()
-c.get()
+c = Counter(stop=7) #0
+c.increment() #1
+c.increment() #2
+c.increment() #3
+c.increment() #4
+c.increment() #5
+c.increment() #6
+c.increment() #7
+c.increment() # "Maximal value is reached."
+c.get() #7
 
+c = Counter(start=5, stop=7) #5
+c.increment() #6
+c.increment() #7
+c.increment() # "Maximal value is reached."
+c.get() #7
+
+
+c = Counter(start=5) #5
+c.increment() #6
+c.increment() #7
+c.increment() #8
+c.increment() #9
+c.increment() #10
+c.get() #10
 
 
