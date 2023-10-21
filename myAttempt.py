@@ -12,7 +12,7 @@ class Counter:
     def get(self):
         print(self.start)
 
-c = Counter(start=42)
+c = Counter(start=42, stop=44)
 c.increment()
 c.increment()
 c.increment()
