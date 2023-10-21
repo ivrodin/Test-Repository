@@ -1,23 +1,33 @@
-### OOP Basics. Task 2
-***
-#### Description
+# OOP Basics. Task 3
 
-Create a class `SchoolMember` which represents any person in school.
-Classes `Teacher` and `Student` are inherited from `SchoolMember`. 
+Implement a Counter class that optionally accepts the start value and the counter stop value.
+If the start value is not specified the counter should begin with 0.
+If the stop value is not specified it should be counting up infinitely.
+If the counter reaches the stop value, print "Maximal value is reached."
 
-Classes should have the same interface with the public `show ()` method.
-`Teacher` accepts *name* (str), *age* (int), *salary* (int).
-`Student` accepts *name* (str), *age* (int), *grades*.
-Move the same logic of initialization to the class `SchoolMember`.
+Implement two methods: "increment" and "get"
 
-Method `show()` returns string (see string patters in *Example*).
+Example:
+```python
+>>> c = Counter(start=42)
+>>> c.increment()
+>>> c.get()
+43
 
-#### Example
+>>> c = Counter()
+>>> c.increment()
+>>> c.get()
+1
+>>> c.increment()
+>>> c.get()
+2
 
-    >>> persons = [Teacher("Mr.Snape", 40, 3000), Student("Harry", 16, 75)]
-
-    >>> for person in persons:
-           print(person.show())
-
-    "Name: Mr.Snape, Age: 40, Salary: 3000"
-    "Name: Harry, Age: 16, Grades: 75"
+>>> c = Counter(start=42, stop=43)
+>>> c.increment()
+>>> c.get()
+43
+>>> c.increment()
+Maximal value is reached.
+>>> c.get()
+43
+```
