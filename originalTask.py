@@ -1,14 +1,38 @@
 """
-Develop a class Field with "full encapsulation" whose attributes are accessed, and data changes are implemented through method calls.
+Description
+Create a class SchoolMember that represents any person in school. Classes Teacher and Student are inherited from SchoolMember.
 
-In OOP, it is generally accepted to start the names of the methods for extracting data with the word "get" 
-and the names of the methods in which fields are equated to a certain value - "set".
+Classes should have the same interface as the public show () method. Teacher accepts name (str), age (int), and salary (int). Student accepts name (str), age (int), and grades. Move the same logic of initialization to the class SchoolMember.
 
-In this task, you must implement get_value and set_value methods for the Field class (__value property).
+Method show() returns a string (see string patterns in the Example).
+
+All attributes that were accepted should be public.
+
+Example
+>>> teacher = Teacher("Mr.Snape", 40, 3000)
+>>> teacher.name
+"Mr.Snape"
+
+>>> persons = [teacher, Student("Harry", 16, 75)]
+
+>>> for person in persons:
+       print(person.show())
+
+"Name: Mr.Snape, Age: 40, Salary: 3000"
+"Name: Harry, Age: 16, Grades: 75"
 """
 
-class Field:
-    __value = None
-    def __init__(self):
-        self.__value = None
-    # TODO: add your code here
+# Complete the following code according to the task in README.md.
+# Don't change names of classes. Create names for the variables
+# exactly the same as in the task.
+class SchoolMember:
+    pass
+
+
+class Teacher:
+    pass
+
+
+class Student:
+    pass
+
