@@ -23,13 +23,4 @@ class Student(SchoolMember):
         self.grades = grades
         
     def show(self):
-        return f'Name: {self.name}, Age: {self.age}, Salary: {self.grades}'
-
-# persons = [Teacher("Mr.Snape", 40, 3000), Student("Harry", 16, 75)]
-
-# for person in persons:
-#     print(person.show())
-
-# # Output: 
-# # Name: Mr.Snape, Age: 40, Salary: 3000
-# # Name: Harry, Age: 16, Salary: 75
+        return f'Name: {self.name}, Age: {self.age}, Grades: {self.grades}'
