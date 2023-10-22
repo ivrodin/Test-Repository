@@ -1,33 +1,15 @@
-# OOP Basics. Task 3
+## OOP Basics. Task 4
 
-Implement a Counter class that optionally accepts the start value and the counter stop value.
-If the start value is not specified the counter should begin with 0.
-If the stop value is not specified it should be counting up infinitely.
-If the counter reaches the stop value, print "Maximal value is reached."
-
-Implement two methods: "increment" and "get"
+Implement a custom dictionary that will memorize the 5 latest changed keys.
+Using method "get_history" return these keys.
 
 Example:
 ```python
->>> c = Counter(start=42)
->>> c.increment()
->>> c.get()
-43
+>>> d = HistoryDict({"foo": 42})
+>>> d.set_value("bar", 43)
+>>> d.get_history()
 
->>> c = Counter()
->>> c.increment()
->>> c.get()
-1
->>> c.increment()
->>> c.get()
-2
-
->>> c = Counter(start=42, stop=43)
->>> c.increment()
->>> c.get()
-43
->>> c.increment()
-Maximal value is reached.
->>> c.get()
-43
+["bar"]
 ```
+
+*After your own implementation of the class have a look at collections.deque https://docs.python.org/3/library/collections.html#collections.deque*
