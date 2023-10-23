@@ -1,33 +1,49 @@
-from collections import deque
+from abc import ABC
+# from abc import abstractmethod
 
-class HistoryDict:
-    def __init__(self , dict) -> None:
-        self.list_of_dict = []
-        self.list_history = deque([])
-        self.list_of_dict.append(dict)
-    
-    def set_value(self, key, value):
-        self.list_of_dict.append({key:value})
-        deq_len = len(self.list_history)
-        if deq_len <= 4:
-            self.list_history.append(key)
-        else:
-            self.list_history.popleft()
-            self.list_history.append(key)
-    
-    def get_history(self):
-        print(list(self.list_history))
-        return(list(self.list_history))
 
-a = HistoryDict({'foo':30})
+class Vehicle(ABC):
+    def __init__(
+            self,
+            brand_name: str,
+            year_of_issue: int,
+            base_price: int,
+            mileage: int
+    ):
+        pass
 
-a.set_value('№1', 35)
-a.set_value('№2', 11)
-a.set_value('№3', 12)
-a.set_value('№4', 65)
-a.set_value('№5', 43)
-a.set_value('№6', 40)
-a.set_value('№7', 40)
-a.get_history()
+    def wheels_num(self) -> int:
+        return 0
 
-print(a.list_history)
+    def vehicle_type(self) -> str:
+        pass
+
+    def is_motorcycle(self) -> bool:
+        pass
+
+    def purchase_price(self) -> float:
+        pass
+
+
+# Don't change class implementation
+class Car(Vehicle):
+    def wheels_num(self):
+        return 4
+
+
+# Don't change class implementation
+class Motorcycle(Vehicle):
+    def wheels_num(self):
+        return 2
+
+
+# Don't change class implementation
+class Truck(Vehicle):
+    def wheels_num(self):
+        return 10
+
+
+# Don't change class implementation
+class Bus(Vehicle):
+    def wheels_num(self):
+        return 6
