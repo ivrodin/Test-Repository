@@ -1,60 +1,38 @@
-### Class-Related Decorators. Task 1
-***
-#### Description
+# Exceptions. Task 1 
 
-You need to create abstract class `Vehicle`. Classes `Car`, `Motorcycle`, `Truck`, `Bus` are inherited from `Vehicle` 
-and already implemented. 
+Implement a Pagination class helpful to arrange text on pages and list content on the given page. 
+The class should take in a text and a positive integer which indicate how many symbols will be allowed per page (take spaces into account as well).
 
-Class `Vehicle` accepts the following parameters:
+You need to be able to get the number of whole symbols in the text, get the number of pages that came out and the method that accepts the page number, and return the number of symbols on this page. If the provided number of the page is missing raise exception with message "Invalid index. Page is missing". 
 
-- `brand_name` -> str (e.g. Honda)
-- `year_of_issue` -> int (e.g. 2020)
-- `base_price` -> int (e.g. 1_000_000)
-- `mileage` -> int (e.g. 10_000)
+Implement searching/filtering pages by symbols/words and displaying pages with all the symbols on it. If the provided symbols/words are missing raise exception with message "'<symbol/word>' is missing on the pages". 
 
-The following methods should be implemented:
+If you're querying by symbol that appears on many pages or if you are querying by the word that is splitted in two return an array of all the occurences.
 
-- `vehicle_type` - returns str - type of the vehicle in the following pattern *brand_name + name of the class*.
-  For example: *Toyota Car*, *Suzuki Motorcycle*;
-- `is_motorcycle` return boolean value depends on the amount of wheels (2 wheels -> motorcycle, so method should return *True*);
-- `purchase_price` - returns the price of the vehicle: (`base_price - 0.1 * mileage`). If the result price is less than 100_000, 
-method should return 100_000.
+Pages indexing starts with 0.
 
-Put the following decorators where necessary and if it is necessary:
+Example:
+```python
+>>> pages = Pagination('Your beautiful text', 5)
+>>> pages.page_count
+4
+>>> pages.item_count
+19
 
-`abstractmethod`, `classmethod`, `staticmethod`, `property` and other decorators.
-
-#### Example
-
-
-    >>> vehicles = (
-        Car(brand_name="Toyota", year_of_issue=2020, base_price=1_000_000, mileage=150_000),
-        Motorcycle(brand_name="Suzuki", year_of_issue=2015, base_price=800_000, mileage=35_000),
-        Truck(brand_name="Scania", year_of_issue=2018, base_price=15_000_000, mileage=850_000),
-        Bus(brand_name="MAN", year_of_issue=2000, base_price=10_000_000, mileage=950_000)
-    )
-    
-    >>> for vehicle in vehicles:
-            print(
-                f"Vehicle type={vehicle.vehicle_type()}\n"
-                f"Is motorcycle={vehicle.is_motorcycle()}\n"
-                f"Purchase price={vehicle.purchase_price}\n"
-            )
-    
-
-    Vehicle type=Toyota Car
-    Is motorcycle=False
-    Purchase price=985000.0
-    
-    Vehicle type=Suzuki Motorcycle
-    Is motorcycle=True
-    Purchase price=796500.0
-    
-    Vehicle type=Scania Truck
-    Is motorcycle=False
-    Purchase price=14915000.0
-    
-    Vehicle type=MAN Bus
-    Is motorcycle=False
-    Purchase price=9905000.0
-
+>>> pages.count_items_on_page(0)
+5
+>>> pages.count_items_on_page(3)
+4
+>>> pages.count_items_on_page(4)
+Exception: Invalid index. Page is missing.
+>>> pages.find_page('Your')
+[0]
+>>> pages.find_page('e')
+[1, 3]
+>>> pages.find_page('beautiful')
+[1, 2]
+>>> pages.find_page('great')
+Exception: 'great' is missing on the pages
+>>> pages.display_page(0)
+'Your '
+```
