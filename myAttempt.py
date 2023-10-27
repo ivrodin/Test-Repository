@@ -16,14 +16,10 @@ class Pagination:
                 count += 1
 
     def page_count(self):
-        for res, item in enumerate(self.data_list):
-            pass
-        return res + 1
+        return len(self.data_list)
 
     def count_items_on_page(self, page_number):
-        for res, item in enumerate(self.data_list[page_number - 1]):
-            pass
-        return res + 1
+        return len(self.data_list[page_number - 1])
 
     def find_page(self, data):
         found_pages = []
@@ -42,4 +38,4 @@ class Pagination:
 a = Pagination('I wanna be your dog', 3)
 print(a.data_list)
 print(a.page_count())
-print(a.count_items_on_page(2))
+print(a.count_items_on_page(7))
