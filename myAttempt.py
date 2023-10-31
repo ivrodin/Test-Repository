@@ -18,16 +18,14 @@ class Pagination:
 
     @property
     def page_count(self):
-        print(len(self.data_list) - 1)
         return len(self.data_list) - 1
 
     @property
     def item_count(self):
-        print(len(self.data))
         return len(self.data)
     
     def count_items_on_page(self, page_number):
-        if page_number < len(self.data_list) - 1 and page_number > len(self.data_list) - 1:
+        if page_number <= len(self.data_list) - 1:
             return len(self.data_list[page_number])
         else:
             raise Exception('Invalid index. Page is missing.')
@@ -79,14 +77,12 @@ class Pagination:
             result_pages = self.several_char_srch(self.data_list, data)
 
         if result_pages:
-            print(result_pages)
             return result_pages
         else:
             raise Exception (f'{data} is missing on the pages')
 
     def display_page(self, page_number):
-        if page_number < len(self.data_list) - 1 and page_number > len(self.data_list) - 1:
-            print(self.data_list[page_number])
+        if page_number <= len(self.data_list) - 1:
             return self.data_list[page_number]
         else:
             raise Exception ('Invalid index. Page is missing.')
@@ -98,10 +94,10 @@ class Pagination:
 # print(a.count_items_on_page(7))
 # print(a.find_page('wanna'))
 
-# pages = Pagination('Your beautiful text', 5)
+pages = Pagination('Your beautiful text', 5)
 # pages.item_count
 # print(pages.data_list)
-# # pages.count_items_on_page(3)
+print(pages.count_items_on_page(3))
 # pages.find_page('e')
 
 
