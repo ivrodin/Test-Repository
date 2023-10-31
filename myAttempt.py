@@ -26,7 +26,6 @@ class Pagination:
         except:
             print('Exception: Invalid index. Page is missing.')
 
-
     def find_page(self, data):
         result_pages = set()
         temp_str = ''
@@ -64,7 +63,6 @@ class Pagination:
         except:
             print(f'Exception: {data} is missing on the pages')
 
-    
     def display_page(self, page_number):
         try:
             print(self.data_list[page_number])
