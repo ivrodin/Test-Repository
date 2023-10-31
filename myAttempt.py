@@ -18,7 +18,7 @@ class Pagination:
 
     @property
     def page_count(self):
-        return len(self.data_list) - 1
+        return len(self.data_list)
 
     @property
     def item_count(self):
