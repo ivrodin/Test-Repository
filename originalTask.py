@@ -1,7 +1,14 @@
-from typing import List
+class Bird:
+    pass
 
 
-class Counter:
-    def __init__(self, values: List[int]):
-        self.values = values
-    # TODO: add your code here
+class FlyingBird:
+    pass
+
+
+class NonFlyingBird:
+    pass
+
+
+class SuperBird:
+    pass
