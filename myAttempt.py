@@ -21,8 +21,8 @@ class Pagination:
 
     def count_items_on_page(self, page_number):
         try:
-            print(len(self.data_list[page_number - 1]))
-            return len(self.data_list[page_number - 1])
+            print(len(self.data_list[page_number]))
+            return len(self.data_list[page_number])
         except:
             print('Exception: Invalid index. Page is missing.')
 
@@ -77,9 +77,16 @@ class Pagination:
 # print(a.count_items_on_page(7))
 # print(a.find_page('wanna'))
 
-a = Pagination('wanna anna nana pana', 3)
-print(a.data_list)
-a.page_count()
-a.count_items_on_page(10)
-a.find_page('nnapa')
-a.display_page(10)
+# pages = Pagination('Your beautiful text', 5)
+# print(pages.data_list)
+# pages.count_items_on_page(3)
+
+
+
+
+# a = Pagination('wanna anna nana pana', 3)
+# print(a.data_list)
+# a.page_count()
+# a.count_items_on_page(10)
+# a.find_page('nnapa')
+# a.display_page(10)
