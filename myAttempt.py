@@ -20,55 +20,69 @@ class Pagination:
         return len(self.data_list) - 1
 
     def count_items_on_page(self, page_number):
-        try:
-            print(len(self.data_list[page_number]))
+        if page_number < len(self.data_list) - 1 and page_number > len(self.data_list) - 1:
             return len(self.data_list[page_number])
-        except:
-            print('Exception: Invalid index. Page is missing.')
+        else:
+            raise Exception('Invalid index. Page is missing.')
 
-    def find_page(self, data):
+    @staticmethod
+    def one_char_srch(data_list, srched_item):
+        result_pages = set()
+        for pg_count, item in enumerate(data_list):
+            for char_item in item:
+                if srched_item == char_item:
+                    result_pages.add(pg_count)
+        return list(result_pages)
+    
+    @staticmethod
+    def several_char_srch(data_list, srched_str):
         result_pages = set()
         temp_str = ''
         temp_pages = set()
         i = 1
-        try:
-            for pg_count, item in enumerate(self.data_list):
-                for index, char_item in enumerate(item):
-                    temp_str += char_item
-                    if temp_str[0:i] == data[0:i]:
-                        if temp_str != data:
-                            i += 1
-                            if index + 1 == len(item):
-                                temp_pages.add(pg_count)
-                            continue
-                        else:
-                            if temp_pages:
-                                for page in temp_pages:
-                                    result_pages.add(page)
-                                temp_pages.clear()
-                            result_pages.add(pg_count)
-                            temp_str = ''
-                    else:
-                        temp_str = char_item
-                        if char_item == data[0]:
+        for pg_count, item in enumerate(data_list):
+            for index, char_item in enumerate(item):
+                temp_str += char_item
+                if len(srched_str) == 1 or temp_str[0:i] == srched_str[0:i]:
+                    if temp_str != srched_str:
+                        i += 1
+                        if index + 1 == len(item):
                             temp_pages.add(pg_count)
-                            continue
-                        i = 2
-                        temp_pages.clear()
-            if result_pages:
-                print(list(result_pages))
-                return list(result_pages)
-            else:
-                raise Exception
-        except:
-            print(f'Exception: {data} is missing on the pages')
+                        continue
+                    else:
+                        if temp_pages:
+                            for page in temp_pages:
+                                result_pages.add(page)
+                            temp_pages.clear()
+                        result_pages.add(pg_count)
+                        temp_str = ''
+                else:
+                    temp_str = char_item
+                    if char_item == srched_str[0]:
+                        temp_pages.add(pg_count)
+                        continue
+                    i = 2
+                    temp_pages.clear()
+        return list(result_pages)
+
+    def find_page(self, data):
+        if len(data) == 1:
+            result_pages = self.one_char_srch(self.data_list, data)
+        else:
+            result_pages = self.several_char_srch(self.data_list, data)
+
+        if result_pages:
+            print(list(result_pages))
+            return list(result_pages)
+        else:
+            raise Exception (f'{data} is missing on the pages')
 
     def display_page(self, page_number):
-        try:
+        if page_number < len(self.data_list) - 1 and page_number > len(self.data_list) - 1:
             print(self.data_list[page_number])
             return self.data_list[page_number]
-        except:
-            print('Exception: Invalid index. Page is missing.')
+        else:
+            raise Exception ('Invalid index. Page is missing.')
 
 
 # a = Pagination('I wanna be your dog', 3)
@@ -79,14 +93,15 @@ class Pagination:
 
 # pages = Pagination('Your beautiful text', 5)
 # print(pages.data_list)
-# pages.count_items_on_page(3)
+# # pages.count_items_on_page(3)
+# pages.find_page('e')
 
 
 
 
-# a = Pagination('wanna anna nana pana', 3)
-# print(a.data_list)
-# a.page_count()
+a = Pagination('wanna anna nana pana', 3)
+print(a.data_list)
+a.page_count()
 # a.count_items_on_page(10)
 # a.find_page('nnapa')
-# a.display_page(10)
+a.display_page(10)
