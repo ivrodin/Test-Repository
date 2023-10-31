@@ -1,9 +1,10 @@
 class Pagination:
     def __init__(self, data, items_on_page):
         self.data_list = []
+        self.data = data
         temp_str = ''
         count = 1
-        for item in data:
+        for item in self.data:
             if count == items_on_page:
                 temp_str += item
                 self.data_list.append(temp_str)
@@ -15,10 +16,16 @@ class Pagination:
         if temp_str:
             self.data_list.append(temp_str)
 
+    @property
     def page_count(self):
         print(len(self.data_list) - 1)
         return len(self.data_list) - 1
 
+    @property
+    def item_count(self):
+        print(len(self.data))
+        return len(self.data)
+    
     def count_items_on_page(self, page_number):
         if page_number < len(self.data_list) - 1 and page_number > len(self.data_list) - 1:
             return len(self.data_list[page_number])
@@ -91,17 +98,18 @@ class Pagination:
 # print(a.count_items_on_page(7))
 # print(a.find_page('wanna'))
 
-# pages = Pagination('Your beautiful text', 5)
+pages = Pagination('Your beautiful text', 5)
+pages.item_count
 # print(pages.data_list)
 # # pages.count_items_on_page(3)
-# pages.find_page('e')
+pages.find_page('e')
 
 
 
 
-a = Pagination('wanna anna nana pana', 3)
-print(a.data_list)
-a.page_count()
+# a = Pagination('wanna anna nana pana', 3)
+# print(a.data_list)
+# a.page_count()
 # a.count_items_on_page(10)
 # a.find_page('nnapa')
-a.display_page(10)
+# a.display_page(10)
