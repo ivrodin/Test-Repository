@@ -79,8 +79,8 @@ class Pagination:
             result_pages = self.several_char_srch(self.data_list, data)
 
         if result_pages:
-            print(list(result_pages))
-            return list(result_pages)
+            print(result_pages)
+            return result_pages
         else:
             raise Exception (f'{data} is missing on the pages')
 
