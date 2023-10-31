@@ -98,11 +98,11 @@ class Pagination:
 # print(a.count_items_on_page(7))
 # print(a.find_page('wanna'))
 
-pages = Pagination('Your beautiful text', 5)
-pages.item_count
+# pages = Pagination('Your beautiful text', 5)
+# pages.item_count
 # print(pages.data_list)
 # # pages.count_items_on_page(3)
-pages.find_page('e')
+# pages.find_page('e')
 
 
 
