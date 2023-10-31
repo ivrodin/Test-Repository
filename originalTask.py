@@ -1,13 +1,7 @@
-from typing import Union
+from typing import List
 
 
-def divide(str_with_ints: str) -> Union[float, str]:
-    """
-    Returns the result of dividing two numbers or an error message.
-    :arg
-        str_with_ints: str, ex. "4 2";
-    :return
-        result of dividing: float, ex. 2.0 (4 / 2 = 2.0);
-        error response in "Error code: {error message}: str;
-    """
-    raise NotImplementedError('Implement me!')
+class Counter:
+    def __init__(self, values: List[int]):
+        self.values = values
+    # TODO: add your code here
