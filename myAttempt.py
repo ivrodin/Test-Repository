@@ -1,9 +1,19 @@
 class Bird:
-    pass
+    def __init__(self, name) -> None:
+        self.name = name
+
+    def fly(self):
+        pass
+
+    def walk(self):
+        pass
 
 
 class FlyingBird:
-    pass
+    def __init__(self, name, ration) -> None:
+        self.name = name
+        self.ration = ration
+        
 
 
 class NonFlyingBird:
