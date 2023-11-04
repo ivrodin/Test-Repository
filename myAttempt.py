@@ -1,76 +1,34 @@
-from typing import Any
+from __future__ import annotations
+from typing import Type
 
 
-class Bird:
-    def __init__(self, name) -> None:
-        self.name = name
-    
-    def __str__(self) -> str:
-        return f'{self.name} can walk and fly'
+class Currency:
+    """
+    1 EUR = 2 USD = 100 GBP
 
-    def fly(self):
-        return f'{self.name} can fly'
+    1 EUR = 2 USD    ;  1 EUR = 100 GBP
+    1 USD = 0.5 EUR  ;  1 USD = 50 GBP
+    1 GBP = 0.02 USD ;  1 GBP = 0.01 EUR
+    """
 
-    def walk(self):
-        return f'{self.name} can walk'
+    def __init__(self, value: float):
+        pass
 
+    @classmethod
+    def course(cls, other_cls: Type[Currency]) -> str:
+        raise NotImplementedError
 
-
-
-class FlyingBird(Bird):
-    def __init__(self, name, ration = 'grains') -> None:
-        super().__init__(name)
-        self.ration = ration
-
-    def eat(self):
-        return f"{self.name} eats mostly {self.ration}"
+    def to_currency(self, other_cls: Type[Currency]):
+        raise NotImplementedError
 
 
+class Euro(Currency):
+    pass
 
 
-class NonFlyingBird(Bird):
-
-    def __init__(self, name, ration = 'grains') -> None:
-        super().__init__(name)
-        self.ration = ration
-
-    def __str__(self) -> str:
-        return f'{self.name} can walk and swim'
-    
-    def swim(self):
-        return f'{self.name} can swim'
-    
-    def fly(self):
-        raise AttributeError (f"{self.name} object has no attribute 'fly'")
-
-    def eat(self):
-        return f"{self.name} eats mostly {self.ration}"
+class Dollar(Currency):
+    pass
 
 
-
-
-class SuperBird(FlyingBird, NonFlyingBird):
-    
-    def __init__(self, name, ration='grains') -> None:
-        super().__init__(name, ration)
-    
-    def __str__(self) -> str:
-        return f'{self.name} can walk, swim and fly'
-    
-
-b = Bird('Any')
-print(b.walk())
-print(str(b))
-
-p = NonFlyingBird('Penguin', 'fish')
-print(p.swim())
-# print(p.fly()) #AttributeError
-print(p.eat())
-
-c = FlyingBird('Cannary')
-print(str(c))
-print(c.eat())
-
-s = SuperBird('Gull')
-print(str(s))
-print(s.eat())
+class Pound(Currency):
+    pass
