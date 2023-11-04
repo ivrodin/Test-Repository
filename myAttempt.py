@@ -64,7 +64,7 @@ print(str(b))
 
 p = NonFlyingBird('Penguin', 'fish')
 print(p.swim())
-print(p.fly())
+# print(p.fly()) #AttributeError
 print(p.eat())
 
 c = FlyingBird('Cannary')
