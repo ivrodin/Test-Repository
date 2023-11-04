@@ -19,7 +19,9 @@ class TeamLead(Employee):
 class Junior(Employee):
     def __init__(self, name, email) -> None:
         super().__init__(name, email)
-        del Employee.work
+        
+    def work(self, project):
+        raise AttributeError
 
 class Senior(Employee):
     def __init__(self, name, email) -> None:
@@ -32,5 +34,5 @@ b = Junior('Page', 'page@mail.org')
 a.send_email(b.name, b.email, 'where r u?')
 a.work('deployment')
 
-# b.work('nothing')
+b.work('nothing')
 
