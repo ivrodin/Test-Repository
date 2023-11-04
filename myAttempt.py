@@ -35,7 +35,7 @@ class NonFlyingBird(Bird):
         self.ration = ration
 
     def __str__(self) -> str:
-        return f'{self.name} can walk, swim and fly'
+        return f'{self.name} can walk and swim'
     
     def swim(self):
         return f'{self.name} can swim'
@@ -54,8 +54,8 @@ class SuperBird(FlyingBird, NonFlyingBird):
     def __init__(self, name, ration='grains') -> None:
         super().__init__(name, ration)
     
-    def __call__(self, *args: Any, **kwds: Any) -> Any:
-        return super().__call__(*args, **kwds)
+    def __str__(self) -> str:
+        return f'{self.name} can walk, swim and fly'
     
 
 b = Bird('Any')
