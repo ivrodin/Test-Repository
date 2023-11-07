@@ -12,7 +12,7 @@ class Currency:
     """
 
     def __init__(self, value: float):
-        pass
+        self.value = value
 
     @classmethod
     def course(cls, other_cls: Type[Currency]) -> str:
@@ -23,12 +23,16 @@ class Currency:
 
 
 class Euro(Currency):
-    pass
+    def __init__(self, value: float):
+        super().__init__(value)
+
 
 
 class Dollar(Currency):
-    pass
+    def __init__(self, value: float):
+        super().__init__(value)
 
 
 class Pound(Currency):
-    pass
+    def __init__(self, value: float):
+        super().__init__(value)
