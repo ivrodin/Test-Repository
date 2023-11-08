@@ -31,16 +31,16 @@ class Currency:
             if other_cls == Euro:
                 return '0.5 EUR for 1 USD'
             if other_cls == Pound:
-                return '50 GBP for 1 USD'
+                return '50.0 GBP for 1 USD'
             else:
                 return '1.0 USD for 1 USD'
         if cls == Pound:
             if other_cls == Euro:
                 return '0.01 EUR for 1 GBP'
             if other_cls == Dollar:
-                return '0.5 USD for 1 GBP'
+                return '0.02 USD for 1 GBP'
             else:
-                return '1.0 USD for 1 GBP' #TODO: FIX POUND CURRENCY
+                return '1.0 USD for 1 GBP'
 
 
     def to_currency(self, other_cls: Type[Currency]):
@@ -55,22 +55,22 @@ class Currency:
 
 
 class Euro(Currency):
-    # rate_to_pound = 
-    # rate_to_dollar = 
+    rate_to_pound = 100
+    rate_to_dollar = 50
     def __init__(self, value: float):
         super().__init__(value)
 
 
 
 class Dollar(Currency):
-    # rate_to_pound = 
-    # rate_to_euro = 
+    rate_to_pound = 50
+    rate_to_euro = 0.5
     def __init__(self, value: float):
         super().__init__(value)
 
 
 class Pound(Currency):
-    # rate_to_euro = 
-    # rate_to_dollar = 
+    rate_to_euro = 0.01
+    rate_to_dollar = 0.02
     def __init__(self, value: float):
         super().__init__(value)
