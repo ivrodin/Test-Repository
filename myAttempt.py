@@ -19,7 +19,6 @@ class Currency:
 
     @classmethod
     def course(cls, other_cls: Type[Currency]) -> str:
-        # raise NotImplementedError
         if cls == Euro:
             if other_cls == Dollar:
                 return '2.0 USD for 1 EUR'
@@ -74,3 +73,29 @@ class Pound(Currency):
     rate_to_dollar = 0.02
     def __init__(self, value: float):
         super().__init__(value)
+
+
+
+
+e = Euro(100)
+r = Pound(100)
+d = Dollar(200)
+
+print(
+      f"Euro.course(Pound)   ==> {Euro.course(Pound)}\n"
+      f"Dollar.course(Pound) ==> {Dollar.course(Pound)}\n"
+      f"Pound.course(Euro)   ==> {Pound.course(Euro)}\n"
+  )
+
+print(
+      f"e = {e}\n"
+      f"e.to_currency(Dollar) = {e.to_currency(Dollar)}\n"
+      f"e.to_currency(Pound) = {e.to_currency(Pound)}\n"
+      f"e.to_currency(Euro)   = {e.to_currency(Euro)}\n"
+  )
+print(
+      f"r = {r}\n"
+      f"r.to_currency(Dollar) = {r.to_currency(Dollar)}\n"
+      f"r.to_currency(Euro)   = {r.to_currency(Euro)}\n"
+      f"r.to_currency(Pound) = {r.to_currency(Pound)}\n"
+  )
