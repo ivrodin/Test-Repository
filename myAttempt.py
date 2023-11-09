@@ -49,8 +49,10 @@ class Currency:
             rate = other_cls.rate_to_dollar
         if isinstance(self, Pound):
             rate = other_cls.rate_to_pound
-        value = self.value * rate
+        value = float(self.value / rate)
         return other_cls(value)
+    
+
 
 
 class Euro(Currency):
@@ -58,6 +60,10 @@ class Euro(Currency):
     rate_to_dollar = 50
     def __init__(self, value: float):
         super().__init__(value)
+    
+    def __repr__(self):
+        return f"{self.value} EUR"
+
 
 
 
@@ -67,12 +73,18 @@ class Dollar(Currency):
     def __init__(self, value: float):
         super().__init__(value)
 
+    def __repr__(self):
+        return f"{self.value} USD"
+
 
 class Pound(Currency):
     rate_to_euro = 0.01
     rate_to_dollar = 0.02
     def __init__(self, value: float):
         super().__init__(value)
+
+    def __repr__(self):
+        return f"{self.value} GBP"
 
 
 
