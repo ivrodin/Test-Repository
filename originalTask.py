@@ -1,34 +1,19 @@
-from __future__ import annotations
-from typing import Type
-
-
-class Currency:
+class PriceControl:
     """
-    1 EUR = 2 USD = 100 GBP
-
-    1 EUR = 2 USD    ;  1 EUR = 100 GBP
-    1 USD = 0.5 EUR  ;  1 USD = 50 GBP
-    1 GBP = 0.02 USD ;  1 GBP = 0.01 EUR
+    Descriptor which don't allow to set price
+    less than 0 and more than 100 included.
     """
-
-    def __init__(self, value: float):
-        pass
-
-    @classmethod
-    def course(cls, other_cls: Type[Currency]) -> str:
-        raise NotImplementedError
-
-    def to_currency(self, other_cls: Type[Currency]):
-        raise NotImplementedError
-
-
-class Euro(Currency):
     pass
 
 
-class Dollar(Currency):
+class NameControl:
+    """
+    Descriptor which don't allow to change field value after initialization.
+    """
     pass
 
 
-class Pound(Currency):
-    pass
+class Book:
+    author = NameControl()
+    name = NameControl()
+    price = PriceControl()
