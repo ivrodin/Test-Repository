@@ -51,7 +51,7 @@ class Currency:
             rate = other_cls.rate_to_pound
         value = float(self.value / rate)
         return other_cls(value)
-    
+
     def __add__(self, other_cls: Type[Currency]):
         if isinstance(self, Euro):
             converted_other_class = other_cls.to_currency(Euro)
@@ -60,10 +60,37 @@ class Currency:
         if isinstance(self, Pound):
             converted_other_class = other_cls.to_currency(Pound)
         value = self.value + converted_other_class.value
-        return self(value)
-
-
-
+        return type(self)(value)
+    
+    def __lt__(self, other_cls: Type[Currency]):
+        if isinstance(self, Euro):
+            converted_other_class = other_cls.to_currency(Euro)
+        if isinstance(self, Dollar):
+            converted_other_class = other_cls.to_currency(Dollar)
+        if isinstance(self, Pound):
+            converted_other_class = other_cls.to_currency(Pound)
+        value = self.value < converted_other_class.value
+        return value
+    
+    def __gt__(self, other_cls: Type[Currency]):
+        if isinstance(self, Euro):
+            converted_other_class = other_cls.to_currency(Euro)
+        if isinstance(self, Dollar):
+            converted_other_class = other_cls.to_currency(Dollar)
+        if isinstance(self, Pound):
+            converted_other_class = other_cls.to_currency(Pound)
+        value = self.value > converted_other_class.value
+        return value
+    
+    def __eq__(self, other_cls: Type[Currency]):
+        if isinstance(self, Euro):
+            converted_other_class = other_cls.to_currency(Euro)
+        if isinstance(self, Dollar):
+            converted_other_class = other_cls.to_currency(Dollar)
+        if isinstance(self, Pound):
+            converted_other_class = other_cls.to_currency(Pound)
+        value = self.value == converted_other_class.value
+        return value
 
 class Euro(Currency):
     rate_to_pound = 100
@@ -126,4 +153,10 @@ print(
       f"e + r  =>  {e + r}\n"
       f"r + d  =>  {r + d}\n"
       f"d + e  =>  {d + e}\n"
+  )
+
+print(
+      f"e + r  =>  {e > r}\n"
+      f"r + d  =>  {r == d}\n"
+      f"d + e  =>  {d < e}\n"
   )
