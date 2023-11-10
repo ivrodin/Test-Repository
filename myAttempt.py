@@ -94,7 +94,7 @@ class Currency:
 
 class Euro(Currency):
     rate_to_pound = 100
-    rate_to_dollar = 50
+    rate_to_dollar = 2
     def __init__(self, value: float):
         super().__init__(value)
     
@@ -124,39 +124,43 @@ class Pound(Currency):
         return f"{self.value} GBP"
 
 
+e = Euro(45)
+p = Dollar(90)
+
+print(e==p)
 
 
-e = Euro(100)
-r = Pound(100)
-d = Dollar(200)
+# e = Euro(100)
+# r = Pound(100)
+# d = Dollar(200)
 
-print(
-      f"Euro.course(Pound)   ==> {Euro.course(Pound)}\n"
-      f"Dollar.course(Pound) ==> {Dollar.course(Pound)}\n"
-      f"Pound.course(Euro)   ==> {Pound.course(Euro)}\n"
-  )
+# print(
+#       f"Euro.course(Pound)   ==> {Euro.course(Pound)}\n"
+#       f"Dollar.course(Pound) ==> {Dollar.course(Pound)}\n"
+#       f"Pound.course(Euro)   ==> {Pound.course(Euro)}\n"
+#   )
 
-print(
-      f"e = {e}\n"
-      f"e.to_currency(Dollar) = {e.to_currency(Dollar)}\n"
-      f"e.to_currency(Pound) = {e.to_currency(Pound)}\n"
-      f"e.to_currency(Euro)   = {e.to_currency(Euro)}\n"
-  )
-print(
-      f"r = {r}\n"
-      f"r.to_currency(Dollar) = {r.to_currency(Dollar)}\n"
-      f"r.to_currency(Euro)   = {r.to_currency(Euro)}\n"
-      f"r.to_currency(Pound) = {r.to_currency(Pound)}\n"
-  )
+# print(
+#       f"e = {e}\n"
+#       f"e.to_currency(Dollar) = {e.to_currency(Dollar)}\n"
+#       f"e.to_currency(Pound) = {e.to_currency(Pound)}\n"
+#       f"e.to_currency(Euro)   = {e.to_currency(Euro)}\n"
+#   )
+# print(
+#       f"r = {r}\n"
+#       f"r.to_currency(Dollar) = {r.to_currency(Dollar)}\n"
+#       f"r.to_currency(Euro)   = {r.to_currency(Euro)}\n"
+#       f"r.to_currency(Pound) = {r.to_currency(Pound)}\n"
+#   )
 
-print(
-      f"e + r  =>  {e + r}\n"
-      f"r + d  =>  {r + d}\n"
-      f"d + e  =>  {d + e}\n"
-  )
+# print(
+#       f"e + r  =>  {e + r}\n"
+#       f"r + d  =>  {r + d}\n"
+#       f"d + e  =>  {d + e}\n"
+#   )
 
-print(
-      f"e + r  =>  {e > r}\n"
-      f"r + d  =>  {r == d}\n"
-      f"d + e  =>  {d < e}\n"
-  )
+# print(
+#       f"e + r  =>  {e > r}\n"
+#       f"r + d  =>  {r == d}\n"
+#       f"d + e  =>  {d < e}\n"
+#   )
