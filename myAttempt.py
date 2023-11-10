@@ -39,7 +39,7 @@ class Currency:
             if other_cls == Dollar:
                 return '0.02 USD for 1 GBP'
             else:
-                return '1.0 USD for 1 GBP'
+                return '1.0 GBP for 1 GBP'
 
 
     def to_currency(self, other_cls: Type[Currency]):
