@@ -52,6 +52,16 @@ class Currency:
         value = float(self.value / rate)
         return other_cls(value)
     
+    def __add__(self, other_cls: Type[Currency]):
+        if isinstance(self, Euro):
+            converted_other_class = other_cls.to_currency(Euro)
+        if isinstance(self, Dollar):
+            converted_other_class = other_cls.to_currency(Dollar)
+        if isinstance(self, Pound):
+            converted_other_class = other_cls.to_currency(Pound)
+        value = self.value + converted_other_class.value
+        return self(value)
+
 
 
 
@@ -110,4 +120,10 @@ print(
       f"r.to_currency(Dollar) = {r.to_currency(Dollar)}\n"
       f"r.to_currency(Euro)   = {r.to_currency(Euro)}\n"
       f"r.to_currency(Pound) = {r.to_currency(Pound)}\n"
+  )
+
+print(
+      f"e + r  =>  {e + r}\n"
+      f"r + d  =>  {r + d}\n"
+      f"d + e  =>  {d + e}\n"
   )
