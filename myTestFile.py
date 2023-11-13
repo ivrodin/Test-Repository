@@ -5,13 +5,14 @@ import random
 class TempDir:
 
     location = os.getcwd()
-    temp_directory = 'temporaryDirectory' + str(random.randint(1, 99999))
+    temp_directory = 'temporary_directory_' + str(random.randint(0, 9))
     path = os.path.join(location, temp_directory)
 
     def __enter__(self):
+        print('Entering __enter__')
         os.mkdir(self.path)
-        os.chdir(self.temp_directory)
-        return self.temp_directory
+        os.chdir(self.path)
+        return self.path
 
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
@@ -20,9 +21,9 @@ class TempDir:
 
 
 new_dir = 'TestInTest'
-new_path = os.path.join(os.getcwd(),new_dir)
+
 with TempDir() as f:
-    os.mkdir(new_path)
+    os.mkdir(new_dir)
 
 
 
