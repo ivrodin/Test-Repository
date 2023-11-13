@@ -3,31 +3,33 @@ class PriceControl:
     Descriptor which don't allow to set price
     less than 0 and more than 100 included.
     """
-    def __init__(self) -> None:
-        self.price = None
+    def __set_name__(self, owner, name):
+        self.name = '_' + name
 
-    def __set__(self, price):
-        if 0 <= price >= 100:
-            self.price = price
+    def __set__(self, instance, value):
+        if value >= 0 and value <= 100:
+            setattr(instance, self.name, value)
         else:
             raise ValueError('Price must be between 0 and 100')
-    def __get__(self):
-        return self.price
-    def __delete__(self):
-        del self.price
+    
+    def __get__(self, instance, owner):
+        return getattr(instance, self.name)
 
 class NameControl:
     """
     Descriptor which don't allow to change field value after initialization.
     """
-    def __init__(self) -> None:
-        self.__name = None  
-    def __set__(self, name: str):
-        self.__name = name
-    def __get__(self):
-        return self.__name
-    def __delete__(self):
-        del self.__name
+
+    def __set_name__(self, owner, name):
+        self.name = '_' + name
+
+    def __get__(self, instance, owner = None):
+        return getattr(instance, self.name)
+    
+    def __set__(self, instance, value):
+        if instance.__dict__.get(self.name, None) is None:
+            setattr(instance, self.name, value)
+
 
 
 class Book:

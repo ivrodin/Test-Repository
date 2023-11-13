@@ -1,38 +1,37 @@
-class Employee():
-    def __init__(self, name, email) -> None:
-        self.name = name
-        self.email = email
+class NotChangableDescriptor:
 
-    def send_email(self, who_to, email_to , text):
-        print(f'From: {self.name}, {self.email}\nTo: {who_to}, {email_to}\nMessage: {text}')
+    @classmethod
+    def validate_instance_name(cls, instance, name):
+        if not getattr(instance, name, None):
+            raise TypeError
 
-    def work(self, project):
-        print (f'{self.name} is currently working on {project}')
+    def __set_name__(self, owner, name):
+        self.name = '_' + name
 
-class TeamLead(Employee):
-    def __init__(self, name, email) -> None:
-        super().__init__(name, email)
+    def __get__(self, instance, owner = None):
+        return getattr(instance, self.name)
+    
+    def __set__(self, instance, value):
+        print(instance.__dict__)
+        # self.validate_instance_name(instance, self.name)
+        if instance.__dict__.get(self.name, None) is None:
+            setattr(instance, self.name, value)
 
-    def control(self, who):
-        print(f'{self.name} is contolling {who}')
+class TestClass:
+    a = NotChangableDescriptor()
+    b = NotChangableDescriptor()
 
-class Junior(Employee):
-    def __init__(self, name, email) -> None:
-        super().__init__(name, email)
-        
-    def work(self, project):
-        raise AttributeError
+    def __init__(self, a, b) -> None:
+        self.a = a
+        self.b = b
 
-class Senior(Employee):
-    def __init__(self, name, email) -> None:
-        super().__init__(name, email)
-        
 
-a = TeamLead('Chris', 'chris@mail.org')
-b = Junior('Page', 'page@mail.org')
+tst = TestClass(1,2)
+print(tst.__dict__)
+tst.a = 3 
 
-a.send_email(b.name, b.email, 'where r u?')
-a.work('deployment')
+print(tst.__dict__)
 
-b.work('nothing')
+# print(tst.__a)
 
+# print(TestClass.a) # 'NoneType' object has no attribute '__a'
