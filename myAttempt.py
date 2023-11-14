@@ -1,9 +1,10 @@
 import os
+from pathlib import Path
 
 class Cd:
     
     def __init__(self, init_path:str) -> None:
-        self.init_path = init_path.encode('unicode-escape').decode()
+        self.init_path = os.path.normpath(init_path)
         self.location = os.getcwd()
 
     def __enter__(self):
