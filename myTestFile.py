@@ -4,16 +4,14 @@ import random
 
 class TempDir:
 
-    location = os.getcwd()
-    temp_directory = 'temporary_directory_' + str(random.randint(0, 9))
-    path = os.path.join(location, temp_directory)
-
     def __enter__(self):
+        self.location = os.getcwd()
+        temp_directory = 'temporary_directory_' + str(random.randint(0, 9))
+        self.path = os.path.join(self.location, temp_directory)
         print('Entering __enter__')
         os.mkdir(self.path)
         os.chdir(self.path)
         return self.path
-
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         os.chdir(self.location)
