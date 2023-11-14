@@ -1,10 +1,9 @@
 import os
 
-
 class Cd:
     
-    def __init__(self, init_path) -> None:
-        self.init_path = init_path
+    def __init__(self, init_path:str) -> None:
+        self.init_path = init_path.encode('unicode-escape').decode()
         self.location = os.getcwd()
 
     def __enter__(self):
@@ -17,10 +16,10 @@ class Cd:
         os.chdir(self.location)
 
 
-# with Cd(r"C:\Users\ivanr\OneDrive\Рабочий стол\Other's"):
-#     with open('testDoc.txt', 'r') as f:
-#         print(f.read())
-
-with Cd(r"C:\Users\ivanr\OneDriv\Рабочий стол\Other's"):
+with Cd("C:\Users\ivanr\OneDrive\Рабочий стол\Other's"):
     with open('testDoc.txt', 'r') as f:
         print(f.read())
+
+# with Cd(r"C:\Users\ivanr\OneDriv\Рабочий стол\Other's"):
+#     with open('testDoc.txt', 'r') as f:
+#         print(f.read())
