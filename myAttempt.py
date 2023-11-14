@@ -1,25 +1,25 @@
 import os
+from pathlib import Path
 
 class Cd:
-    
+
     def __init__(self, init_path:str) -> None:
-        self.init_path = init_path[1:]
-        self.location = os.getcwd()
-        self.path = os.path.join(self.location, self.init_path)
+        self.init_path = Path(init_path)
+        self.location = Path.cwd()
+        self.path = Path(self.location).joinpath(self.init_path)
 
     def __enter__(self):
         print(self.path)
-        print (os.path.isdir(self.path))
-        if os.path.isdir(self.path):
-            os.chdir(self.path)
+        if self.path.is_dir():
+            os.chdir(str(self.path.absolute()))
         else:
             raise ValueError ('No such directory')
         
     def __exit__(self, exc_type, exc_value, exc_traceback):
-        os.chdir(self.location)
+        os.chdir(str(self.location.absolute()))
 
 
-with Cd('/testDir'):
+with Cd('/Users/ivanr/OneDrive/Рабочий стол/SW Courses/GitHub/Test-Repository/testDir'):
     with open('testDoc.txt', 'r') as f:
         print(f.read())
 
