@@ -1,6 +1,6 @@
-import os
+from contextlib import ContextDecorator
 
 
-class Cd:
+class LogFile(ContextDecorator):
     pass
-    # TODO: please add your code here
+
