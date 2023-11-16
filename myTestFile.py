@@ -10,15 +10,6 @@ class Cipher:
         self.encripted_alphabet = self.alphabet_encription()
         self.encripted_alphabet_dict = self.alphabet_dictionarization(self.encripted_alphabet)
 
-
-        # print(self.key)
-        print(self.natural_alphabet_dict)
-        print(self.encripted_alphabet_dict)
-        # print(self.encripted_alphabet)
-        # print(self.natural_alphabet)
-        # print(self.encripted_alphabet)
-        # print(len(self.encripted_alphabet) == len(self.natural_alphabet))
-
     def alphabet_encription(self): 
         _alphabet_copy = self.natural_alphabet
         for key_elem in self.key:
@@ -34,24 +25,49 @@ class Cipher:
         return alphabet_dict
     
     def encode(self, data: str):
-        data = data.lower()
         encoded_str = ''
         for elem in data:
+            upper_flag = False
+            if elem == ' ':
+                encoded_str += elem
+            if elem.isupper() is True:
+                upper_flag = True
+                elem = elem.lower()
             for nat_key,nat_value in self.natural_alphabet_dict.items():
                 if elem == nat_value:
                     for enc_key,enc_value in self.encripted_alphabet_dict.items():
-                        if nat_key == enc_key:
+                        if upper_flag is True and nat_key == enc_key:
+                            encoded_str += enc_value.upper()
+                        elif nat_key == enc_key:
                             encoded_str += enc_value
         return encoded_str
+    
+    def decode(self, data:str):
+        decoded_str = ''
+        for elem in data:
+            upper_flag = False
+            if elem == ' ':
+                decoded_str += elem
+            if elem.isupper() is True:
+                upper_flag = True
+                elem = elem.lower()
+            for encded_key,encded_value in self.encripted_alphabet_dict.items():
+                if elem == encded_value:
+                    for nat_key,nat_value in self.natural_alphabet_dict.items():
+                        if upper_flag is True and encded_key == nat_key:
+                            decoded_str += nat_value.upper()
+                        elif encded_key == nat_key:
+                            decoded_str += nat_value
+        return decoded_str
 
 
 
 
 a = Cipher('proto')
 
-print(a.encode('Hello'))
+print(a.encode('See you arond'))
 
-
+print(a.decode('Qaa yku pnkjt'))
 
 
 
