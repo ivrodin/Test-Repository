@@ -33,11 +33,23 @@ class Cipher:
             alphabet_dict[key] = val
         return alphabet_dict
     
-    def encode(self, data):
-        pass
+    def encode(self, data: str):
+        data = data.lower()
+        encoded_str = ''
+        for elem in data:
+            for nat_key,nat_value in self.natural_alphabet_dict.items():
+                if elem == nat_value:
+                    for enc_key,enc_value in self.encripted_alphabet_dict.items():
+                        if nat_key == enc_key:
+                            encoded_str += enc_value
+        return encoded_str
+
+
 
 
 a = Cipher('proto')
+
+print(a.encode('Hello'))
 
 
 
