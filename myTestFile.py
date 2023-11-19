@@ -65,9 +65,9 @@ class Cipher:
 
 a = Cipher('proto')
 
-print(a.encode('See you arond'))
+print(a.encode('I am coming for you'))
 
-print(a.decode('Qaa yku pnkjt'))
+print(a.decode('E pi okiejc bkn yku'))
 
 
 
