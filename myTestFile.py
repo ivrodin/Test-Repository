@@ -1,115 +1,27 @@
-from collections import OrderedDict
+from argparse import ArgumentParser
+from typing import List, Optional, Sequence
+import requests
 
-class Cipher:
+def parse_cli():
+    parser = ArgumentParser(description='Pure Python command-line RSS reader.')
+    parser.add_argument('url', type=str, metavar= 'source', help='RSS URL')
+    parser.add_argument('--json', help='Print result as JSON in stdout', default= False, action= 'store_true')
+    parser.add_argument('--limit', metavar= 'LIMIT', help= 'Limit news topics if this parameter is provided', action= 'store', nargs='?')
 
-    natural_alphabet = 'abcdefghijklmnopqrstuvwxyz'
-
-    def __init__(self, key) -> None:
-        self.key = ''.join(OrderedDict.fromkeys(key))
-        self.natural_alphabet_dict = self.alphabet_dictionarization(self.natural_alphabet)
-        self.encripted_alphabet = self.alphabet_encription()
-        self.encripted_alphabet_dict = self.alphabet_dictionarization(self.encripted_alphabet)
-
-    def alphabet_encription(self): 
-        _alphabet_copy = self.natural_alphabet
-        for key_elem in self.key:
-            for alph_elem in _alphabet_copy:
-                if key_elem == alph_elem:
-                    _alphabet_copy = _alphabet_copy.replace(alph_elem, '')
-        return self.key + _alphabet_copy
-
-    def alphabet_dictionarization(self, alphabet):
-        alphabet_dict = {}
-        for key, val in enumerate(alphabet):
-            alphabet_dict[key] = val
-        return alphabet_dict
-    
-    def encode(self, data: str):
-        encoded_str = ''
-        for elem in data:
-            upper_flag = False
-            if elem == ' ':
-                encoded_str += elem
-            if elem.isupper() is True:
-                upper_flag = True
-                elem = elem.lower()
-            for nat_key,nat_value in self.natural_alphabet_dict.items():
-                if elem == nat_value:
-                    for enc_key,enc_value in self.encripted_alphabet_dict.items():
-                        if upper_flag is True and nat_key == enc_key:
-                            encoded_str += enc_value.upper()
-                        elif nat_key == enc_key:
-                            encoded_str += enc_value
-        return encoded_str
-    
-    def decode(self, data:str):
-        decoded_str = ''
-        for elem in data:
-            upper_flag = False
-            if elem == ' ':
-                decoded_str += elem
-            if elem.isupper() is True:
-                upper_flag = True
-                elem = elem.lower()
-            for encded_key,encded_value in self.encripted_alphabet_dict.items():
-                if elem == encded_value:
-                    for nat_key,nat_value in self.natural_alphabet_dict.items():
-                        if upper_flag is True and encded_key == nat_key:
-                            decoded_str += nat_value.upper()
-                        elif encded_key == nat_key:
-                            decoded_str += nat_value
-        return decoded_str
+    args = parser.parse_args()
 
 
+    # print(f'args: {args.__dict__}')
+    # print(f'json data is: {args.json}\nlimit data is: {args.limit}')
 
+    response = requests.get(args.url)
+    # print(response)
+    res_parse_dict = args.__dict__
+    res_parse_dict['text_content'] = response.text
 
-a = Cipher('proto')
+    return res_parse_dict
 
-print(a.encode('I am coming for you'))
-
-print(a.decode('E pi okiejc bkn yku'))
-
-
-
-
-
-
-
-
-
-
-
-
-
-# natural_alph = 'abcdefghijklmnopqrstuvwxyz'
-
-# key = 'banana'
-
-# clean_key = key_duplicates_removal(key)
-
-# print(clean_key)
-
-# encr_alph = aplhabet_encription(clean_key, natural_alph)
-
-# print(encr_alph)
-
-# print(len(natural_alph) == len(encr_alph))
-
-
-
-
-# natural_alph = 'protabcdefghijklmnqsuvwxyz'
-
-# nat_alph_dict = {}
-# for val, key in enumerate(natural_alph):
-#     nat_alph_dict[key] = val
-
-# print(nat_alph_dict)
-
-
-
-
-
-
+a = parse_cli()
+print(a)
 
 
