@@ -10,12 +10,7 @@ def parse_cli():
 
     args = parser.parse_args()
 
-
-    # print(f'args: {args.__dict__}')
-    # print(f'json data is: {args.json}\nlimit data is: {args.limit}')
-
     response = requests.get(args.url)
-    # print(response)
     res_parse_dict = args.__dict__
     res_parse_dict['text_content'] = response.text
 
