@@ -22,28 +22,47 @@ def parse_cli():
 
 # a = parse_cli()
 
-def item_formater(data):
-    temp_str = ''
-    formated_txt = ''
+def tab_content(start_tab, data, tabs_num = -1):
+    '''
+    Returns list of contents iside <tab> in provided data (<tab> number - optional)
+    '''
+    tab_str = ''
+    end_tab = start_tab + start_tab[:1] + '/' + start_tab[1:]
+    content_txt = ''
+    content_lst = []
     appender_flag = False
     for elem in data:
-        if appender_flag is True or  elem == '<':
-            temp_str += elem
+        if appender_flag is True or elem == '<':
+            tab_str += elem
             appender_flag = True
             if elem == '>':
                 appender_flag = False
-                if temp_str == '<item>' or temp_str == '</item>':
-                    formated_txt += '\n' + temp_str + '\n' + '\t'
-                    temp_str = ''
+                if tab_str != start_tab and tab_str != end_tab:
+                    tab_str = ''
+        if tab_str == start_tab:
+            content_txt += elem
+        if tab_str == end_tab:
+            content_lst.append(content_txt[1:])
+            if len(content_lst) == tabs_num:
+                break
+            tab_str = ''
+            content_txt = ''
             continue
-        formated_txt += elem
-    return formated_txt
+    return content_lst
 
-my_text = '<item>hello</item><item>world<item></item><item>im alive</item>'
+# my_text = '''<item>hello</item><link>www.hello.ru</link>
+#             <item>world</item><link>www.world.ru</link>
+#             <item>im alive</item><link>www.imalive.ru</link>'''
 
-my_new_text = item_formater(my_text)
+# print(tab_content('<item>', my_text))
 
-print(my_new_text)
+with open ('my_rss_feed.txt', 'r') as f:
+    my_feed = f.read()
+    items_list = tab_content('<item>', my_feed, 2)
+
+print(items_list)
+
+
 
 
 
