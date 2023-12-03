@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 from typing import List, Optional, Sequence
 from xml.etree import ElementTree as ET
+import sys
 import requests
 
 def parse_cli():
@@ -109,13 +110,56 @@ rss_string = '''<?xml version="1.0" encoding="UTF-8"?><rss xmlns:media="http://s
 </rss>
 '''
 
+# for x in myroot.iter('title'):
+#     print(f'x.tag = {x.tag}, x.attrib = {x.attrib}, x.text = {x.text}\n')
+
+def channel_stdout(root):
+    '''
+    TODO: Add all the other tabs
+    '''
+    for count, elem in enumerate(root.iter('title')):
+        sys.stdout.write(f'Feed: {elem.text}\n')
+        if count != 1:
+            break
+
+    for count, elem in enumerate(root.iter('link')):
+        sys.stdout.write(f'Link: {elem.text}\n')
+        if count != 1:
+            break
+
+    for count, elem in enumerate(root.iter('description')):
+        sys.stdout.write(f'Description: {elem.text}\n')
+        if count != 1:
+            break
+
+def items_stdout(root, count_limit = -1):
+    '''
+    TODO: Fix it
+    '''
+    for count, elem in enumerate(root.iter('title')):
+        sys.stdout.write(f'\nTitle: {elem.text}\n')
+        if count == count_limit:
+            break
+
+    for count, elem in enumerate(root.iter('pubDate')):
+        sys.stdout.write(f'Published: {elem.text}\n')
+        if count != count_limit:
+            break
+
+    for count, elem in enumerate(root.iter('link')):
+        sys.stdout.write(f'Link: {elem.text}\n')
+        if count != count_limit:
+            break
+
+    for count, elem in enumerate(root.iter('description')):
+        sys.stdout.write(f'\n{elem.text}\n')
+        if count != count_limit:
+            break
 
 myroot = ET.fromstring(rss_string)
+channel_stdout(myroot)
+items_stdout(myroot, 2)
 
-for x in myroot.iter('title'):
-    print(f'x.tag = {x.tag}, x.attrib = {x.attrib}, x.text = {x.text}\n')
-
-# print(myroot.tag)
 
 
 
