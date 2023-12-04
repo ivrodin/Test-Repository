@@ -113,24 +113,40 @@ rss_string = '''<?xml version="1.0" encoding="UTF-8"?><rss xmlns:media="http://s
 # for x in myroot.iter('title'):
 #     print(f'x.tag = {x.tag}, x.attrib = {x.attrib}, x.text = {x.text}\n')
 
-def channel_stdout(root):
-    '''
-    TODO: Add all the other tabs
-    '''
-    for count, elem in enumerate(root.iter('title')):
-        sys.stdout.write(f'Feed: {elem.text}\n')
-        if count != 1:
-            break
+class Cmd_out:
 
-    for count, elem in enumerate(root.iter('link')):
-        sys.stdout.write(f'Link: {elem.text}\n')
-        if count != 1:
-            break
+    def __init__(self, rss_txt) -> None:
+        self.root = ET.fromstring(rss_txt)
 
-    for count, elem in enumerate(root.iter('description')):
-        sys.stdout.write(f'Description: {elem.text}\n')
-        if count != 1:
-            break
+
+    def tab_text_stdout(self, tab_name, count, out_txt):
+        for counter, elem in enumerate(self.root.iter(tab_name)):
+            sys.stdout.write(out_txt + f'{elem.text}\n')
+            if counter != count:
+                break
+
+
+    def channel_stdout(self):
+        '''
+        TODO: Add all the other tabs
+        '''
+        # for count, elem in enumerate(root.iter('title')):
+        #     sys.stdout.write(f'Feed: {elem.text}\n')
+        #     if count != 1:
+        #         break
+        self.tab_text_stdout('title', 1, 'Feed: ')
+
+        # for count, elem in enumerate(root.iter('link')):
+        #     sys.stdout.write(f'Link: {elem.text}\n')
+        #     if count != 1:
+        #         break
+        self.tab_text_stdout('link', 1, 'Link: ')
+
+        # for count, elem in enumerate(root.iter('description')):
+        #     sys.stdout.write(f'Description: {elem.text}\n')
+        #     if count != 1:
+        #         break
+        self.tab_text_stdout('description', 1, 'Description: ')
 
 def items_stdout(root, count_limit = -1):
     '''
@@ -156,9 +172,11 @@ def items_stdout(root, count_limit = -1):
         if count != count_limit:
             break
 
-myroot = ET.fromstring(rss_string)
-channel_stdout(myroot)
-items_stdout(myroot, 2)
+a = Cmd_out(rss_string)
+a.channel_stdout()
+
+for x in a.root.findall('item'):
+    print (x.tag)
 
 
 
