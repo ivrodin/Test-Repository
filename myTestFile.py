@@ -27,34 +27,6 @@ def parse_cli():
 
 # a = parse_cli()
 
-def tab_content(start_tab, data, tabs_num = -1):
-    '''
-    Returns list of contents iside <tab> in provided data (<tab> number - optional)
-    TODO: Redo with end </item>
-    '''
-    tab_str = ''
-    end_tab = start_tab + start_tab[:1] + '/' + start_tab[1:]
-    content_txt = ''
-    content_lst = []
-    appender_flag = False
-    for elem in data:
-        if appender_flag is True or elem == '<':
-            tab_str += elem
-            appender_flag = True
-            if elem == '>':
-                appender_flag = False
-                if tab_str != start_tab and tab_str != end_tab:
-                    tab_str = ''
-        if tab_str == start_tab:
-            content_txt += elem
-        if tab_str == end_tab:
-            content_lst.append(content_txt[1:])
-            if len(content_lst) == tabs_num:
-                break
-            tab_str = ''
-            content_txt = ''
-            continue
-    return content_lst
 
 rss_txt_string = '''<?xml version="1.0" encoding="UTF-8"?><rss xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
 <channel>
@@ -115,35 +87,33 @@ rss_url_string = 'https://news.yahoo.com/rss'
 class Cmd_out:
 
     def __init__(self, rss_txt, rss_source_url) -> None:
+
         self.root = ET.fromstring(rss_txt)
+
         self.source_url = rss_source_url
 
-    # @staticmethod
-    # def optional(func):
-    #     def wrapper(*args, **kwargs):
-    #         try:
-    #             func(args, kwargs)
-    #         except:
-    #             pass
-    #     return wrapper
-    
-    # def channel_tab_repr(self, var_name, tab_name, out_txt):
-    #     self.var_name = self.root[0].find(tab_name).text
-    #     sys.stdout.write(f'{out_txt}: {self.var_name}\n')
+        self.channel_title = None
+        self.channel_link = None
+        self.channel_lastBuildDate = None
+        self.channel_pubDate = None
+        self.channel_language = None
+        self.channel_categories = None
+        self.channel_managinEditor = None
+        self.channel_description = None
+        self.channel_items = None
+
+        self.list_of_items_dicts = []
+
 
     def channel_stdout(self):
         '''
         TODO: Add all the other tabs
         '''
+        self.channel_title = self.root[0].find('title').text
+        sys.stdout.write(f'Feed: {self.channel_title}\n')
 
-        self.channel_feed = self.root[0].find('title').text
-        sys.stdout.write(f'Feed: {self.channel_feed}\n')
-
-        # self.channel_link = self.root[0].find('link').text
-        sys.stdout.write(f'Link: {self.source_url}\n')
-
-        self.channel_description = self.root[0].find('description').text
-        sys.stdout.write(f'Description: {self.channel_description}\n\n')
+        self.channel_link = self.root[0].find('link').text # not source_url
+        sys.stdout.write(f'Link: {self.source_url}\n') # printed source_url
 
         try: 
             self.channel_lastBuildDate = self.root[0].find('lastBuildDate').text
@@ -153,7 +123,7 @@ class Cmd_out:
 
         try: 
             self.channel_pubDate = self.root[0].find('pubDate').text
-            sys.stdout.write(f'pubDate: {self.channel_pubDate}\n')
+            sys.stdout.write(f'Published: {self.channel_pubDate}\n')
         except:
             pass
 
@@ -164,38 +134,86 @@ class Cmd_out:
             pass
         
         try: 
-            self.channel_category = self.root[0].find('category').text
-            sys.stdout.write(f'Category: {self.channel_category}\n')
+            self.channel_categories = self.root[0].findall('category') #TODO: test later (add for loop)
+            if self.channel_categories == []:
+                self.channel_categories = None
+            else:
+                sys.stdout.write(f'Categories: {self.channel_categories}\n')
         except:
             pass
 
+        try:
+            self.channel_managinEditor = self.root[0].find('managinEditor').text
+            sys.stdout.write(f'managinEditor: {self.channel_managinEditor}\n')
+        except:
+            pass
 
-def items_stdout(root, count_limit = -1):
-    '''
-    TODO: Fix it
-    '''
-    for count, elem in enumerate(root.iter('title')):
-        sys.stdout.write(f'\nTitle: {elem.text}\n')
-        if count == count_limit:
-            break
+        self.channel_description = self.root[0].find('description').text
+        sys.stdout.write(f'Description: {self.channel_description}\n\n')
 
-    for count, elem in enumerate(root.iter('pubDate')):
-        sys.stdout.write(f'Published: {elem.text}\n')
-        if count != count_limit:
-            break
+        self.channel_items = self.root[0].findall('item')
 
-    for count, elem in enumerate(root.iter('link')):
-        sys.stdout.write(f'Link: {elem.text}\n')
-        if count != count_limit:
-            break
 
-    for count, elem in enumerate(root.iter('description')):
-        sys.stdout.write(f'\n{elem.text}\n')
-        if count != count_limit:
-            break
 
-# a = Cmd_out(rss_txt_string, rss_url_string)
-# a.channel_stdout()
+    def items_stdout(self, number_of_items = -1):
+
+        for counter, current_item in enumerate(self.channel_items):
+            item_dict = {}
+
+            try:
+                item_title = current_item.find('title').text
+                sys.stdout.write(f'Title: {item_title}\n')
+                item_dict['title'] = item_title
+            except:
+                pass
+
+            try:    
+                item_author = current_item.find('author').text
+                sys.stdout.write(f'Author: {item_author}\n')
+                item_dict['author'] = item_author
+            except:
+                pass
+
+            try:    
+                item_pubDate = current_item.find('pubDate').text #TODO: fix date format
+                sys.stdout.write(f'Published: {item_pubDate}\n')
+                item_dict['pubDate'] = item_pubDate
+            except:
+                pass
+
+            try:    
+                item_link = current_item.find('link').text
+                sys.stdout.write(f'Link: {item_link}\n')
+                item_dict['link'] = item_link
+            except:
+                pass            
+
+            try:    
+                item_category = current_item.find('category').text
+                sys.stdout.write(f'Category: {item_category}\n')
+                item_dict['category'] = item_category
+            except:
+                pass
+
+            try:    
+                item_description = current_item.find('description').text
+                sys.stdout.write(f'\n{item_description}\n')
+                item_dict['description'] = item_description
+            except:
+                pass
+
+            sys.stdout.write('\n')
+            self.list_of_items_dicts.append(item_dict)
+            counter += 1
+
+            if counter == number_of_items:
+                break 
+        return self.list_of_items_dicts
+
+a = Cmd_out(rss_txt_string, rss_url_string)
+a.channel_stdout()
+dictionary_items = a.items_stdout(1)
+print(dictionary_items)
 # print(a.root[0][0].tag)
 
 # for x in a.root[0].findall('item'):
