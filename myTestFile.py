@@ -56,7 +56,7 @@ def tab_content(start_tab, data, tabs_num = -1):
             continue
     return content_lst
 
-rss_string = '''<?xml version="1.0" encoding="UTF-8"?><rss xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
+rss_txt_string = '''<?xml version="1.0" encoding="UTF-8"?><rss xmlns:media="http://search.yahoo.com/mrss/" version="2.0">
 <channel>
 <title>Yahoo News - Latest News &amp; Headlines</title>
 <link>https://www.yahoo.com/news</link>
@@ -110,43 +110,65 @@ rss_string = '''<?xml version="1.0" encoding="UTF-8"?><rss xmlns:media="http://s
 </rss>
 '''
 
-# for x in myroot.iter('title'):
-#     print(f'x.tag = {x.tag}, x.attrib = {x.attrib}, x.text = {x.text}\n')
+rss_url_string = 'https://news.yahoo.com/rss'
 
 class Cmd_out:
 
-    def __init__(self, rss_txt) -> None:
+    def __init__(self, rss_txt, rss_source_url) -> None:
         self.root = ET.fromstring(rss_txt)
+        self.source_url = rss_source_url
 
-
-    def tab_text_stdout(self, tab_name, count, out_txt):
-        for counter, elem in enumerate(self.root.iter(tab_name)):
-            sys.stdout.write(out_txt + f'{elem.text}\n')
-            if counter != count:
-                break
-
+    # @staticmethod
+    # def optional(func):
+    #     def wrapper(*args, **kwargs):
+    #         try:
+    #             func(args, kwargs)
+    #         except:
+    #             pass
+    #     return wrapper
+    
+    # def channel_tab_repr(self, var_name, tab_name, out_txt):
+    #     self.var_name = self.root[0].find(tab_name).text
+    #     sys.stdout.write(f'{out_txt}: {self.var_name}\n')
 
     def channel_stdout(self):
         '''
         TODO: Add all the other tabs
         '''
-        # for count, elem in enumerate(root.iter('title')):
-        #     sys.stdout.write(f'Feed: {elem.text}\n')
-        #     if count != 1:
-        #         break
-        self.tab_text_stdout('title', 1, 'Feed: ')
 
-        # for count, elem in enumerate(root.iter('link')):
-        #     sys.stdout.write(f'Link: {elem.text}\n')
-        #     if count != 1:
-        #         break
-        self.tab_text_stdout('link', 1, 'Link: ')
+        self.channel_feed = self.root[0].find('title').text
+        sys.stdout.write(f'Feed: {self.channel_feed}\n')
 
-        # for count, elem in enumerate(root.iter('description')):
-        #     sys.stdout.write(f'Description: {elem.text}\n')
-        #     if count != 1:
-        #         break
-        self.tab_text_stdout('description', 1, 'Description: ')
+        # self.channel_link = self.root[0].find('link').text
+        sys.stdout.write(f'Link: {self.source_url}\n')
+
+        self.channel_description = self.root[0].find('description').text
+        sys.stdout.write(f'Description: {self.channel_description}\n\n')
+
+        try: 
+            self.channel_lastBuildDate = self.root[0].find('lastBuildDate').text
+            sys.stdout.write(f'lastBuildDate: {self.channel_lastBuildDate}\n')
+        except:
+            pass
+
+        try: 
+            self.channel_pubDate = self.root[0].find('pubDate').text
+            sys.stdout.write(f'pubDate: {self.channel_pubDate}\n')
+        except:
+            pass
+
+        try: 
+            self.channel_language = self.root[0].find('language').text
+            sys.stdout.write(f'Language: {self.channel_language}\n')
+        except:
+            pass
+        
+        try: 
+            self.channel_category = self.root[0].find('category').text
+            sys.stdout.write(f'Category: {self.channel_category}\n')
+        except:
+            pass
+
 
 def items_stdout(root, count_limit = -1):
     '''
@@ -172,13 +194,14 @@ def items_stdout(root, count_limit = -1):
         if count != count_limit:
             break
 
-a = Cmd_out(rss_string)
-a.channel_stdout()
+# a = Cmd_out(rss_txt_string, rss_url_string)
+# a.channel_stdout()
+# print(a.root[0][0].tag)
 
-for x in a.root.findall('item'):
-    print (x.tag)
-
-
+# for x in a.root[0].findall('item'):
+#     item_link = x.find('link').text
+#     item_title = x.find('title').text
+#     print(item_title, item_link)
 
 
 
