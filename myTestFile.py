@@ -104,33 +104,40 @@ class Cmd_out:
         self.channel_items = None
 
         self.list_of_items_dicts = []
+        self.dict_of_channel_tabs = {}
 
 
-    def channel_stdout(self):
+    def channel_stdout(self, number_of_items = -1):
         '''
         TODO: Add all the other tabs
         '''
         self.channel_title = self.root[0].find('title').text
         sys.stdout.write(f'Feed: {self.channel_title}\n')
+        self.dict_of_channel_tabs['title'] = self.channel_title
 
         self.channel_link = self.root[0].find('link').text # not source_url
         sys.stdout.write(f'Link: {self.source_url}\n') # printed source_url
+        self.dict_of_channel_tabs['link'] = self.channel_link
+
 
         try: 
             self.channel_lastBuildDate = self.root[0].find('lastBuildDate').text
             sys.stdout.write(f'lastBuildDate: {self.channel_lastBuildDate}\n')
+            self.dict_of_channel_tabs['lastBuildDate'] = self.channel_lastBuildDate
         except:
             pass
 
         try: 
             self.channel_pubDate = self.root[0].find('pubDate').text
             sys.stdout.write(f'Published: {self.channel_pubDate}\n')
+            self.dict_of_channel_tabs['pubDate'] = self.channel_pubDate
         except:
             pass
 
         try: 
             self.channel_language = self.root[0].find('language').text
             sys.stdout.write(f'Language: {self.channel_language}\n')
+            self.dict_of_channel_tabs['language'] = self.channel_language
         except:
             pass
         
@@ -140,23 +147,29 @@ class Cmd_out:
                 self.channel_categories = None
             else:
                 sys.stdout.write(f'Categories: {self.channel_categories}\n')
+            self.dict_of_channel_tabs['categories'] = self.channel_categories
         except:
             pass
 
         try:
             self.channel_managinEditor = self.root[0].find('managinEditor').text
             sys.stdout.write(f'managinEditor: {self.channel_managinEditor}\n')
+            self.dict_of_channel_tabs['managinEditor'] = self.channel_managinEditor
         except:
             pass
 
         self.channel_description = self.root[0].find('description').text
         sys.stdout.write(f'Description: {self.channel_description}\n\n')
+        self.dict_of_channel_tabs['description'] = self.channel_description
 
         self.channel_items = self.root[0].findall('item')
+        
+        self.items_stdout(number_of_items)
+        return self.dict_of_channel_tabs
 
 
 
-    def items_stdout(self, number_of_items = -1):
+    def items_stdout(self, items):
 
         for counter, current_item in enumerate(self.channel_items):
             item_dict = {}
@@ -176,7 +189,10 @@ class Cmd_out:
                 pass
 
             try:    
-                item_pubDate = current_item.find('pubDate').text #TODO: fix date format
+                item_pubDate = current_item.find('pubDate').text #TODO: fix date format (maybe...)
+                # a = '2023-12-03T14:07:37Z'
+                # b = datetime.strptime(a, "%Y-%m-%dT%H:%M:%SZ")
+                # date = b.strftime('%a, %d %b %Y, %H:%M:%S %z')
                 sys.stdout.write(f'Published: {item_pubDate}\n')
                 item_dict['pubDate'] = item_pubDate
             except:
@@ -207,23 +223,37 @@ class Cmd_out:
             self.list_of_items_dicts.append(item_dict)
             counter += 1
 
-            if counter == number_of_items:
+            if counter == items:
                 break 
-        return self.list_of_items_dicts
+        self.dict_of_channel_tabs['items'] = self.list_of_items_dicts
 
-# a = Cmd_out(rss_txt_string, rss_url_string)
-# a.channel_stdout()
-# dictionary_items = a.items_stdout(1)
-# print(dictionary_items)
+    def json_file_creator(self):
+        with open ('rss_json_parse.json', 'w', encoding= 'utf-8') as f:
+            f.write('{\n')
+            for channel_key, channel_value in self.dict_of_channel_tabs.items():
+                if channel_key == 'items':
+                    f.write(f'\t"{channel_key}":\n')
+                    for elem in channel_value:
+                        for item_key, item_value in elem.items():
+                            f.write(f'\n\t\t"{item_key}": "{item_value}",\n\n')
+                f.write(f'\t"{channel_key}": "{channel_value}",\n')
+            f.write('\n}')
+
+a = Cmd_out(rss_txt_string, rss_url_string)
+my_dict = a.channel_stdout()
+a.json_file_creator()
+print(my_dict)
 
 
 
-a = '2023-12-03T14:07:37Z'
-b = datetime.strptime(a, "%Y-%m-%dT%H:%M:%SZ")
-date = b.strftime('%a, %d %b %Y, %H:%M:%S %z')
-
-print(date)
-
-
+                # 'title': self.channel_title,
+                # 'link': self.channel_link,
+                # 'lastBuildDate': self.channel_lastBuildDate,
+                # 'pubDate': self.channel_pubDate,
+                # 'language': self.channel_language,
+                # 'categories': self.channel_categories,
+                # 'managinEditor': self.channel_managinEditor,
+                # 'description': self.channel_description,
+                # 'items': self.list_of_items_dicts
 
 
