@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from typing import List, Optional, Sequence
 from xml.etree import ElementTree as ET
 import sys
+from datetime import datetime
 import requests
 
 def parse_cli():
@@ -210,21 +211,17 @@ class Cmd_out:
                 break 
         return self.list_of_items_dicts
 
-a = Cmd_out(rss_txt_string, rss_url_string)
-a.channel_stdout()
-dictionary_items = a.items_stdout(1)
-print(dictionary_items)
-# print(a.root[0][0].tag)
-
-# for x in a.root[0].findall('item'):
-#     item_link = x.find('link').text
-#     item_title = x.find('title').text
-#     print(item_title, item_link)
+# a = Cmd_out(rss_txt_string, rss_url_string)
+# a.channel_stdout()
+# dictionary_items = a.items_stdout(1)
+# print(dictionary_items)
 
 
 
+a = '2023-12-03T14:07:37Z'
+b = datetime.strftime('%a, %d %b %Y, %H:%M:%S %z')
 
-
+print(b)
 
 
 
