@@ -219,9 +219,10 @@ class Cmd_out:
 
 
 a = '2023-12-03T14:07:37Z'
-b = datetime.strftime('%a, %d %b %Y, %H:%M:%S %z')
+b = datetime.strptime(a, "%Y-%m-%dT%H:%M:%SZ")
+date = b.strftime('%a, %d %b %Y, %H:%M:%S %z')
 
-print(b)
+print(date)
 
 
 
