@@ -93,13 +93,13 @@ def rss_parser(
     res_rss_list = []
     dict_of_channel_tabs = {}
     channel_tags_outs_dict = {'title': 'Feed: ',
-                                  'link': 'Link: ',
-                                  'lastBuildDate': 'Last Build Date: ',
-                                  'pubDate': 'Published: ',
-                                  'language': 'Language: ',
-                                  'category': 'Categories: ',
-                                  'managinEditor': 'Editor: ',
-                                  'description': 'Description: '}
+                                'link': 'Link: ',
+                                'lastBuildDate': 'Last Build Date: ',
+                                'pubDate': 'Published: ',
+                                'language': 'Language: ',
+                                'category': 'Categories: ',
+                                'managinEditor': 'Editor: ',
+                                'description': 'Description: '}
     item_tag_to_stdout_dict = {'title': 'Title: ',
                                'author': 'Author: ',
                                'pubDate': 'Published: ',
