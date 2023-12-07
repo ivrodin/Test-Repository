@@ -147,7 +147,7 @@ class Cmd_out:
                 self.channel_categories = None
             else:
                 sys.stdout.write(f'Categories: {self.channel_categories}\n')
-            self.dict_of_channel_tabs['categories'] = self.channel_categories
+                self.dict_of_channel_tabs['categories'] = self.channel_categories
         except:
             pass
 
@@ -251,21 +251,83 @@ class Cmd_out:
                     f.write(f'\t"{channel_key}": "{channel_value}",\n')
             f.write('}')
 
-a = Cmd_out(rss_txt_string, rss_url_string)
-my_dict = a.channel_stdout()
-a.json_file_creator()
-print(my_dict)
 
 
 
-                # 'title': self.channel_title,
-                # 'link': self.channel_link,
-                # 'lastBuildDate': self.channel_lastBuildDate,
-                # 'pubDate': self.channel_pubDate,
-                # 'language': self.channel_language,
-                # 'categories': self.channel_categories,
-                # 'managinEditor': self.channel_managinEditor,
-                # 'description': self.channel_description,
-                # 'items': self.list_of_items_dicts
 
 
+
+
+
+# Task Start
+
+
+def rss_parser(
+    xml: str,
+    limit: Optional[int] = None,
+    json: bool = False,
+) -> List[str]:
+    """
+    RSS parser.
+
+    Args:
+        xml: XML document as a string.
+        limit: Number of the news to return. if None, returns all news.
+        json: If True, format output as JSON.
+
+    Returns:
+        List of strings.
+        Which then can be printed to stdout or written to file as a separate lines.
+
+    Examples:
+        >>> xml = '<rss><channel><title>Some RSS Channel</title><link>https://some.rss.com</link><description>Some RSS Channel</description></channel></rss>'
+        >>> rss_parser(xml)
+        ["Feed: Some RSS Channel",
+        "Link: https://some.rss.com"]
+        >>> print("\\n".join(rss_parser(xmls)))
+        Feed: Some RSS Channel
+        Link: https://some.rss.com
+    """
+    res_rss_list = []
+    dict_of_channel_tabs = {}
+    channel_tag_to_stdout_dict = {'title': 'Feed',
+                                  'link': 'Link',
+                                  'lastBuildDate': 'lastBuildDate',
+                                  'pubDate': 'Published',
+                                  'language': 'Language',
+                                  'category': 'Categories',
+                                  'managinEditor': 'managinEditor',
+                                  'description': 'Description',
+                                  'item': 'Items'}
+    xml_root = ET.fromstring(xml)
+
+    for key_tag, out_value in channel_tag_to_stdout_dict.items():
+        if key_tag == 'category' or key_tag == 'item':
+            xml_several_tags_appender(xml_root, res_rss_list, dict_of_channel_tabs, key_tag, out_value)
+        else:
+            xml_one_tag_appender(xml_root, res_rss_list, dict_of_channel_tabs, key_tag, out_value)
+    
+    return res_rss_list
+
+def xml_one_tag_appender(root, req_list, req_dict, tag_name, list_appended_tag_name):
+    try:
+        tag_text = root[0].find(tag_name).text
+        req_list.append(f'{list_appended_tag_name}: {tag_text}')
+        req_dict[tag_name] = tag_text
+    except:
+        pass
+
+def xml_several_tags_appender(root, req_list, req_dict, tag_name, list_appended_tag_name):
+    try: 
+        tag_texts_list = root[0].findall(tag_name)
+        if tag_texts_list == []:
+            tag_texts_list = None
+        else:
+            req_list.append(f'{list_appended_tag_name}: {tag_texts_list}')
+            req_dict[tag_name] = tag_texts_list
+    except:
+        pass
+
+a = rss_parser(rss_txt_string)
+
+print(a)
