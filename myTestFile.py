@@ -168,7 +168,6 @@ class Cmd_out:
         return self.dict_of_channel_tabs
 
 
-
     def items_stdout(self, items):
 
         for counter, current_item in enumerate(self.channel_items):
@@ -228,16 +227,25 @@ class Cmd_out:
         self.dict_of_channel_tabs['items'] = self.list_of_items_dicts
 
     def json_file_creator(self):
+        item_counter = 0
         with open ('rss_json_parse.json', 'w', encoding= 'utf-8') as f:
             f.write('{\n')
             for channel_key, channel_value in self.dict_of_channel_tabs.items():
                 if channel_key == 'items':
                     f.write(f'\t"{channel_key}": [\n')
-                    for elem in channel_value:
+                    for counter, elem in enumerate(channel_value):
                         f.write('\t\t{\n')
                         for item_key, item_value in elem.items():
-                            f.write(f'\t\t\t"{item_key}": "{item_value}",\n')
-                        f.write('\t\t},\n')
+                            item_counter += 1
+                            if item_counter == len(self.list_of_items_dicts[0]):
+                                f.write(f'\t\t\t"{item_key}": "{item_value}"\n')
+                                item_counter = 0
+                            else:
+                                f.write(f'\t\t\t"{item_key}": "{item_value}",\n')
+                        if counter == len(channel_value) - 1:
+                            f.write('\t\t}\n')
+                        else:
+                            f.write('\t\t},\n')
                     f.write('\t]\n')
                 else:
                     f.write(f'\t"{channel_key}": "{channel_value}",\n')
