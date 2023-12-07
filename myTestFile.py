@@ -232,12 +232,16 @@ class Cmd_out:
             f.write('{\n')
             for channel_key, channel_value in self.dict_of_channel_tabs.items():
                 if channel_key == 'items':
-                    f.write(f'\t"{channel_key}":\n')
+                    f.write(f'\t"{channel_key}": [\n')
                     for elem in channel_value:
+                        f.write('\t\t{\n')
                         for item_key, item_value in elem.items():
-                            f.write(f'\n\t\t"{item_key}": "{item_value}",\n\n')
-                f.write(f'\t"{channel_key}": "{channel_value}",\n')
-            f.write('\n}')
+                            f.write(f'\t\t\t"{item_key}": "{item_value}",\n')
+                        f.write('\t\t},\n')
+                    f.write('\t]\n')
+                else:
+                    f.write(f'\t"{channel_key}": "{channel_value}",\n')
+            f.write('}')
 
 a = Cmd_out(rss_txt_string, rss_url_string)
 my_dict = a.channel_stdout()
