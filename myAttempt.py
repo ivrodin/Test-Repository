@@ -3,8 +3,6 @@
 from argparse import ArgumentParser
 from typing import List, Optional, Sequence
 from xml.etree import ElementTree as ET
-import sys
-from datetime import datetime
 import requests
 
 
@@ -40,7 +38,7 @@ def rss_parser(
     """
     rss_list = []
     rss_dict = {}
-    channel_tags_outs_dict = {'title': 'Feed: ',
+    channel_tag_to_stdout_dict = {'title': 'Feed: ',
                                 'link': 'Link: ',
                                 'lastBuildDate': 'Last Build Date: ',
                                 'pubDate': 'Published: ',
@@ -57,7 +55,7 @@ def rss_parser(
     
     xml_root = ET.fromstring(xml)
 
-    for channel_tag_key, channel_out_value in channel_tags_outs_dict.items():
+    for channel_tag_key, channel_out_value in channel_tag_to_stdout_dict.items():
         if channel_tag_key == 'category':
             xml_several_tags_appender(xml_root[0], rss_list, rss_dict, channel_tag_key, channel_out_value)
         else:
@@ -66,13 +64,68 @@ def rss_parser(
     items_list_of_dicts = item_parser(xml_root[0], item_tag_to_stdout_dict, rss_list, rss_dict, limit)
 
     if json is True:
-        json_file_creator(rss_dict, items_list_of_dicts)
+        json_file_creator(rss_dict, items_list_of_dicts, limit)
 
     return rss_list
 
-def json_file_creator(rss_tabs_dictionary, items_list_of_dictionaries):
+def xml_one_tag_appender(root, app_list, app_dict, tag_name, out_tag_name):
+    '''
+    Appends 1 xml tag with modified console output tag name to app_list and creates item of app_dict for future json creation usage
+    '''
+    try:
+        tag_text = root.find(tag_name).text
+        app_list.append(f'{out_tag_name}{tag_text}')
+        app_dict[tag_name] = tag_text
+    except:
+        pass
+
+def xml_several_tags_appender(root, app_list, app_dict, tag_name, out_tag_name):
+    '''
+    Appends several xml tags with modified console output tag name to app_list and creates item of app_dict for future json creation usage
+    '''
+    try: 
+        tag_list = root.findall(tag_name).text
+        if tag_list == []:
+            tag_list = None
+        else:
+            app_list.append(f'{out_tag_name}{tag_list}')
+            app_dict[tag_name] = tag_list
+    except:
+        pass
+
+def item_parser(root, items_tags_outs_dict, app_list, app_dict, items_limit):
+    '''
+    Going inside items xml tags and parses it one by one to app_list
+    Creates item_list_of_dicts and creates item of app_dict with these lists for further json creation usage
+    '''
+    channel_items = root.findall('item')
+    if items_limit is None:
+        items_limit == len(channel_items) - 1
+    item_list_of_dicts = []
+    for counter, current_item in enumerate(channel_items):
+        item_dict = {}
+        item_list = []
+        app_list.append('') # used for adding an empty line between channel and items in console output
+        for item_tag_key, item_out_value in items_tags_outs_dict.items():
+            if item_tag_key == 'category':
+                xml_several_tags_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
+            else:
+                xml_one_tag_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
+        if counter == items_limit:
+            break
+        else:
+            for elem in item_list:
+                app_list.append(elem)
+            item_list_of_dicts.append(item_dict)
+            app_dict['items'] = item_list_of_dicts
+    return item_list_of_dicts
+
+def json_file_creator(rss_tabs_dictionary, items_list_of_dictionaries, item_limit):
+    '''
+    Creates json file
+    '''
     item_counter = 0
-    with open ('rss_json_parse.json', 'w', encoding= 'utf-8') as f:
+    with open ('rss_json_parsed.json', 'w', encoding= 'utf-8') as f:
         f.write('{\n')
         for channel_key, channel_value in rss_tabs_dictionary.items():
             if channel_key == 'items':
@@ -92,51 +145,11 @@ def json_file_creator(rss_tabs_dictionary, items_list_of_dictionaries):
                         f.write('\t\t},\n')
                 f.write('\t]\n')
             else:
-                f.write(f'\t"{channel_key}": "{channel_value}",\n')
+                if item_limit == 0 and channel_key == 'description':
+                    f.write(f'\t"{channel_key}": "{channel_value}"\n')
+                else:
+                    f.write(f'\t"{channel_key}": "{channel_value}",\n')
         f.write('}')
-
-def item_parser(root, items_tags_outs_dict, parent_list, parent_dict, items_limit):
-    channel_items = root.findall('item')
-    if items_limit is None:
-        items_limit == len(channel_items) - 1
-    item_list_of_dicts = []
-    for counter, current_item in enumerate(channel_items):
-        item_dict = {}
-        item_list = []
-        parent_list.append('\n')
-        for item_tag_key, item_out_value in items_tags_outs_dict.items():
-            if item_tag_key == 'category':
-                xml_several_tags_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
-            else:
-                xml_one_tag_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
-        item_list_of_dicts.append(item_dict)
-
-        if counter == items_limit:
-            break
-        else:
-            for elem in item_list:
-                parent_list.append(elem)
-            parent_dict['items'] = item_list_of_dicts
-    return item_list_of_dicts
-
-def xml_one_tag_appender(root, req_list, req_dict, tag_name, list_appended_tag_name):
-    try:
-        tag_text = root.find(tag_name).text
-        req_list.append(f'{list_appended_tag_name}{tag_text}')
-        req_dict[tag_name] = tag_text
-    except:
-        pass
-
-def xml_several_tags_appender(root, req_list, req_dict, tag_name, list_appended_tag_name):
-    try: 
-        tag_list = root.findall(tag_name).text
-        if tag_list == []:
-            tag_list = None
-        else:
-            req_list.append(f'{list_appended_tag_name}{tag_list}')
-            req_dict[tag_name] = tag_list
-    except:
-        pass
 
 def main(argv: Optional[Sequence] = None):
     """
