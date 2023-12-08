@@ -38,41 +38,103 @@ def rss_parser(
         Feed: Some RSS Channel
         Link: https://some.rss.com
     """
-    res_rss_list = []
-    dict_of_channel_tabs = {}
-    channel_tag_to_stdout_dict = {'title': 'Feed',
-                                  'link': 'Link',
-                                  'lastBuildDate': 'lastBuildDate',
-                                  'pubDate': 'Published',
-                                  'language': 'Language',
-                                  'category': 'Categories',
-                                  'managinEditor': 'managinEditor',
-                                  'description': 'Description',
-                                  'item': 'Items'}
+    rss_list = []
+    rss_dict = {}
+    channel_tags_outs_dict = {'title': 'Feed: ',
+                                'link': 'Link: ',
+                                'lastBuildDate': 'Last Build Date: ',
+                                'pubDate': 'Published: ',
+                                'language': 'Language: ',
+                                'category': 'Categories: ',
+                                'managinEditor': 'Editor: ',
+                                'description': 'Description: '}
+    item_tag_to_stdout_dict = {'title': 'Title: ',
+                               'author': 'Author: ',
+                               'pubDate': 'Published: ',
+                               'link': 'Link: ',
+                               'category': 'Categories: ',
+                               'Description': ''}
+    
     xml_root = ET.fromstring(xml)
 
-    for key_tag, out_value in channel_tag_to_stdout_dict:
-        if key_tag == 'category' or key_tag == 'item':
-            xml_several_tags_appender(xml_root, res_rss_list, dict_of_channel_tabs, key_tag, out_value)
+    for channel_tag_key, channel_out_value in channel_tags_outs_dict.items():
+        if channel_tag_key == 'category':
+            xml_several_tags_appender(xml_root[0], rss_list, rss_dict, channel_tag_key, channel_out_value)
         else:
-            xml_one_tag_appender(xml_root, res_rss_list, dict_of_channel_tabs, key_tag, out_value)
-        
+            xml_one_tag_appender(xml_root[0], rss_list, rss_dict, channel_tag_key, channel_out_value)
+    
+    items_list_of_dicts = item_parser(xml_root[0], item_tag_to_stdout_dict, rss_list, rss_dict, limit)
+
+    if json is True:
+        json_file_creator(rss_dict, items_list_of_dicts)
+
+    return rss_list
+
+def json_file_creator(rss_tabs_dictionary, items_list_of_dictionaries):
+    item_counter = 0
+    with open ('rss_json_parse.json', 'w', encoding= 'utf-8') as f:
+        f.write('{\n')
+        for channel_key, channel_value in rss_tabs_dictionary.items():
+            if channel_key == 'items':
+                f.write(f'\t"{channel_key}": [\n')
+                for counter, elem in enumerate(channel_value):
+                    f.write('\t\t{\n')
+                    for item_key, item_value in elem.items():
+                        item_counter += 1
+                        if item_counter == len(items_list_of_dictionaries[0]):
+                            f.write(f'\t\t\t"{item_key}": "{item_value}"\n')
+                            item_counter = 0
+                        else:
+                            f.write(f'\t\t\t"{item_key}": "{item_value}",\n')
+                    if counter == len(channel_value) - 1:
+                        f.write('\t\t}\n')
+                    else:
+                        f.write('\t\t},\n')
+                f.write('\t]\n')
+            else:
+                f.write(f'\t"{channel_key}": "{channel_value}",\n')
+        f.write('}')
+
+def item_parser(root, items_tags_outs_dict, parent_list, parent_dict, items_limit):
+    channel_items = root.findall('item')
+    if items_limit is None:
+        items_limit == len(channel_items) - 1
+    item_list_of_dicts = []
+    for counter, current_item in enumerate(channel_items):
+        item_dict = {}
+        item_list = []
+        parent_list.append('\n')
+        for item_tag_key, item_out_value in items_tags_outs_dict.items():
+            if item_tag_key == 'category':
+                xml_several_tags_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
+            else:
+                xml_one_tag_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
+        item_list_of_dicts.append(item_dict)
+
+        if counter == items_limit:
+            break
+        else:
+            for elem in item_list:
+                parent_list.append(elem)
+            parent_dict['items'] = item_list_of_dicts
+    return item_list_of_dicts
+
 def xml_one_tag_appender(root, req_list, req_dict, tag_name, list_appended_tag_name):
     try:
-        tag_text = root[0].find(tag_name).text
-        req_list.append(f'{list_appended_tag_name}: {tag_text}\n')
+        tag_text = root.find(tag_name).text
+        req_list.append(f'{list_appended_tag_name}{tag_text}')
         req_dict[tag_name] = tag_text
     except:
         pass
 
 def xml_several_tags_appender(root, req_list, req_dict, tag_name, list_appended_tag_name):
     try: 
-        tag_texts_list = root[0].findall(tag_name)
-        if tag_texts_list == []:
-            tag_texts_list = None
+        tag_list = root.findall(tag_name).text
+        if tag_list == []:
+            tag_list = None
         else:
-            req_list.append(f'{list_appended_tag_name}: {tag_texts_list}\n')
-            req_dict[tag_name] = tag_texts_list
+            req_list.append(f'{list_appended_tag_name}{tag_list}')
+            req_dict[tag_name] = tag_list
     except:
         pass
 

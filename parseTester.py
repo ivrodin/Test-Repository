@@ -120,8 +120,6 @@ def rss_parser(
     if json is True:
         json_file_creator(rss_dict, items_list_of_dicts)
 
-    print(f'\nRSS Dictionary For Json:\n\n{rss_dict}')
-
     return rss_list
 
 def json_file_creator(rss_tabs_dictionary, items_list_of_dictionaries):
@@ -151,21 +149,26 @@ def json_file_creator(rss_tabs_dictionary, items_list_of_dictionaries):
 
 def item_parser(root, items_tags_outs_dict, parent_list, parent_dict, items_limit):
     channel_items = root.findall('item')
+    if items_limit is None:
+        items_limit == len(channel_items) - 1
     item_list_of_dicts = []
     for counter, current_item in enumerate(channel_items):
         item_dict = {}
         item_list = []
+        parent_list.append('\n')
         for item_tag_key, item_out_value in items_tags_outs_dict.items():
             if item_tag_key == 'category':
                 xml_several_tags_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
             else:
                 xml_one_tag_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
         item_list_of_dicts.append(item_dict)
-        for elem in item_list:
-            parent_list.append(elem)
-        if counter == items_limit - 1 or counter == len(channel_items) - 1:
-            parent_dict['items'] = item_list_of_dicts
+
+        if counter == items_limit:
             break
+        else:
+            for elem in item_list:
+                parent_list.append(elem)
+            parent_dict['items'] = item_list_of_dicts
     return item_list_of_dicts
 
 def xml_one_tag_appender(root, req_list, req_dict, tag_name, list_appended_tag_name):
@@ -192,4 +195,4 @@ parsed_rss_list = rss_parser(rss_txt_string, 2, True)
 print('\nReturned List: \n')
 print(parsed_rss_list)
 print('\nJoined List: \n')
-print("\\n".join(parsed_rss_list))
+print("\n".join(parsed_rss_list))
