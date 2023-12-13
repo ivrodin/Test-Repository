@@ -13,7 +13,7 @@ class UnhandledException(Exception):
 channel_tag_to_stdout_dict = {'title': 'Feed: ',
                             'link': 'Link: ',
                             'lastBuildDate': 'Last Build Date: ',
-                            'pubDate': 'Published: ',
+                            'pubDate': 'Publish Date: ',
                             'language': 'Language: ',
                             'category': 'Categories: ',
                             'managinEditor': 'Editor: ',
