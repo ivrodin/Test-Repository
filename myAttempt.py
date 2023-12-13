@@ -65,9 +65,9 @@ def rss_parser(
     rss_dict['items'] = item_parser(xml_root[0], item_tag_to_stdout_dict, rss_list, rss_dict, limit)
 
     if json is True:
-        encode_json(rss_dict)
-
-    return rss_list
+        return encode_json(rss_dict)
+    else:
+        return rss_list
 
 def xml_one_tag_appender(root, app_list, app_dict, tag_name, out_tag_name):
     '''
@@ -127,6 +127,7 @@ def encode_json(result_rss_dict):
     '''
     with open ('json_rss_feed.json', 'w', encoding='utf-8') as file:
         json.dump(result_rss_dict, file, indent=4)
+    return json.dumps(result_rss_dict)
 
 def main(argv: Optional[Sequence] = None):
     """
