@@ -4,11 +4,26 @@ from argparse import ArgumentParser
 from typing import List, Optional, Sequence
 from xml.etree import ElementTree as ET
 import requests
+import json
 
 
 class UnhandledException(Exception):
     pass
 
+channel_tag_to_stdout_dict = {'title': 'Feed: ',
+                            'link': 'Link: ',
+                            'lastBuildDate': 'Last Build Date: ',
+                            'pubDate': 'Published: ',
+                            'language': 'Language: ',
+                            'category': 'Categories: ',
+                            'managinEditor': 'Editor: ',
+                            'description': 'Description: '}
+item_tag_to_stdout_dict = {'title': 'Title: ',
+                            'author': 'Author: ',
+                            'pubDate': 'Published: ',
+                            'link': 'Link: ',
+                            'category': 'Categories: ',
+                            'Description': ''}
 
 def rss_parser(
     xml: str,
@@ -38,21 +53,7 @@ def rss_parser(
     """
     rss_list = []
     rss_dict = {}
-    channel_tag_to_stdout_dict = {'title': 'Feed: ',
-                                'link': 'Link: ',
-                                'lastBuildDate': 'Last Build Date: ',
-                                'pubDate': 'Published: ',
-                                'language': 'Language: ',
-                                'category': 'Categories: ',
-                                'managinEditor': 'Editor: ',
-                                'description': 'Description: '}
-    item_tag_to_stdout_dict = {'title': 'Title: ',
-                               'author': 'Author: ',
-                               'pubDate': 'Published: ',
-                               'link': 'Link: ',
-                               'category': 'Categories: ',
-                               'Description': ''}
-    
+
     xml_root = ET.fromstring(xml)
 
     for channel_tag_key, channel_out_value in channel_tag_to_stdout_dict.items():
@@ -61,10 +62,10 @@ def rss_parser(
         else:
             xml_one_tag_appender(xml_root[0], rss_list, rss_dict, channel_tag_key, channel_out_value)
     
-    items_list_of_dicts = item_parser(xml_root[0], item_tag_to_stdout_dict, rss_list, rss_dict, limit)
+    rss_dict['items'] = item_parser(xml_root[0], item_tag_to_stdout_dict, rss_list, rss_dict, limit)
 
     if json is True:
-        json_file_creator(rss_dict, items_list_of_dicts, limit)
+        encode_json(rss_dict)
 
     return rss_list
 
@@ -120,36 +121,12 @@ def item_parser(root, items_tags_outs_dict, app_list, app_dict, items_limit):
             app_dict['items'] = item_list_of_dicts
     return item_list_of_dicts
 
-def json_file_creator(rss_tabs_dictionary, items_list_of_dictionaries, item_limit):
+def encode_json(result_rss_dict):
     '''
     Creates json file
     '''
-    item_counter = 0
-    with open ('rss_json_parsed.json', 'w', encoding= 'utf-8') as f:
-        f.write('{\n')
-        for channel_key, channel_value in rss_tabs_dictionary.items():
-            if channel_key == 'items':
-                f.write(f'\t"{channel_key}": [\n')
-                for counter, elem in enumerate(channel_value):
-                    f.write('\t\t{\n')
-                    for item_key, item_value in elem.items():
-                        item_counter += 1
-                        if item_counter == len(items_list_of_dictionaries[0]):
-                            f.write(f'\t\t\t"{item_key}": "{item_value}"\n')
-                            item_counter = 0
-                        else:
-                            f.write(f'\t\t\t"{item_key}": "{item_value}",\n')
-                    if counter == len(channel_value) - 1:
-                        f.write('\t\t}\n')
-                    else:
-                        f.write('\t\t},\n')
-                f.write('\t]\n')
-            else:
-                if item_limit == 0 and channel_key == 'description':
-                    f.write(f'\t"{channel_key}": "{channel_value}"\n')
-                else:
-                    f.write(f'\t"{channel_key}": "{channel_value}",\n')
-        f.write('}')
+    with open ('json_rss_feed.json', 'w', encoding='utf-8') as file:
+        json.dump(result_rss_dict, file, indent=4)
 
 def main(argv: Optional[Sequence] = None):
     """

@@ -1,0 +1,19 @@
+{
+    "title": "Yahoo News - Latest News & Headlines",
+    "link": "https://www.yahoo.com/news",
+    "pubDate": "Wed, 13 Dec 2023 14:04:13 -0500",
+    "language": "en-US",
+    "description": "The latest news and headlines from Yahoo! News. Get breaking news stories and in-depth coverage with videos and photos.",
+    "items": [
+        {
+            "title": "Supreme Court will hear a case that could undo Capitol riot charge against hundreds, including Trump",
+            "pubDate": "2023-12-13T14:34:56Z",
+            "link": "https://news.yahoo.com/supreme-court-hear-case-could-143456759.html"
+        },
+        {
+            "title": "Inmate who had \u2018secret phone sex\u2019 with female guard threatened staff when she was sacked, court told",
+            "pubDate": "2023-12-12T21:46:12Z",
+            "link": "https://news.yahoo.com/inmate-had-secret-phone-sex-214612582.html"
+        }
+    ]
+}
