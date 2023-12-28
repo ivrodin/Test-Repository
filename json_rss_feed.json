@@ -1,14 +1,15 @@
 {
-    "title": "Yahoo News - Latest News & Headlines",
-    "link": "https://www.yahoo.com/news",
-    "pubDate": "Wed, 13 Dec 2023 14:58:26 -0500",
-    "language": "en-US",
-    "description": "The latest news and headlines from Yahoo! News. Get breaking news stories and in-depth coverage with videos and photos.",
+    "title": "NYT > World News",
+    "link": "https://www.nytimes.com/section/world",
+    "lastBuildDate": "Thu, 28 Dec 2023 14:09:57 +0000",
+    "pubDate": "Thu, 28 Dec 2023 14:06:38 +0000",
+    "language": "en-us",
+    "description": null,
     "items": [
         {
-            "title": "Supreme Court will hear a case that could undo Capitol riot charge against hundreds, including Trump",
-            "pubDate": "2023-12-13T14:34:56Z",
-            "link": "https://news.yahoo.com/supreme-court-hear-case-could-143456759.html"
+            "title": "Israel-Hamas War: Israeli Warning Raises Prospect of a Broader War",
+            "pubDate": "Thu, 28 Dec 2023 14:06:38 +0000",
+            "link": "https://www.nytimes.com/live/2023/12/28/world/israel-hamas-war-gaza-news"
         }
     ]
 }

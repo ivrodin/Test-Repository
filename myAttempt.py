@@ -148,8 +148,12 @@ def main(argv: Optional[Sequence] = None):
     args = parser.parse_args(argv)
     xml = requests.get(args.source).text
     try:
-        print("\n".join(rss_parser(xml, args.limit, args.json)))
-        return 0
+        main_result = rss_parser(xml, args.limit, args.json)
+        if type(main_result) is list:
+            print("\n".join(main_result))        
+            return 0
+        if type(main_result) is str:
+            return main_result
     except Exception as e:
         raise UnhandledException(e)
 
