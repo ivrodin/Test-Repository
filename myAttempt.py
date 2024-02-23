@@ -23,7 +23,7 @@ item_tag_to_stdout_dict = {'title': 'Title: ',
                             'pubDate': 'Published: ',
                             'link': 'Link: ',
                             'category': 'Categories: ',
-                            'Description': ''}
+                            'description': ''}
 
 def rss_parser(
     xml: str,
@@ -62,7 +62,10 @@ def rss_parser(
         else:
             xml_one_tag_appender(xml_root[0], rss_list, rss_dict, channel_tag_key, channel_out_value)
     
-    rss_dict['items'] = item_parser(xml_root[0], item_tag_to_stdout_dict, rss_list, rss_dict, limit)
+    items = item_parser(xml_root[0], item_tag_to_stdout_dict, rss_list, rss_dict, limit)
+
+    if items:
+        rss_dict['items'] = items
 
     if json is True:
         return encode_json(rss_dict)
@@ -100,9 +103,14 @@ def item_parser(root, items_tags_outs_dict, app_list, app_dict, items_limit):
     Creates item_list_of_dicts and creates item of app_dict with these lists for further json creation usage
     '''
     channel_items = root.findall('item')
+
+    if len(channel_items) == 0:
+        return []
+
     if items_limit is None:
         items_limit == len(channel_items) - 1
     item_list_of_dicts = []
+
     for counter, current_item in enumerate(channel_items):
         item_dict = {}
         item_list = []
@@ -127,7 +135,7 @@ def encode_json(result_rss_dict):
     '''
     with open ('json_rss_feed.json', 'w', encoding='utf-8') as file:
         json.dump(result_rss_dict, file, indent=4)
-    return json.dumps(result_rss_dict)
+    return [json.dumps(result_rss_dict)]
 
 def main(argv: Optional[Sequence] = None):
     """
@@ -147,13 +155,11 @@ def main(argv: Optional[Sequence] = None):
 
     args = parser.parse_args(argv)
     xml = requests.get(args.source).text
+
     try:
         main_result = rss_parser(xml, args.limit, args.json)
-        if type(main_result) is list:
-            print("\n".join(main_result))        
-            return 0
-        if type(main_result) is str:
-            return main_result
+        print("\n".join(main_result))
+        return 0
     except Exception as e:
         raise UnhandledException(e)
 
