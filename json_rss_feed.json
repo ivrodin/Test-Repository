@@ -1,15 +1,27 @@
 {
-    "title": "NYT > World News",
-    "link": "https://www.nytimes.com/section/world",
-    "lastBuildDate": "Thu, 28 Dec 2023 14:20:38 +0000",
-    "pubDate": "Thu, 28 Dec 2023 14:20:09 +0000",
+    "title": "Your Channel Title",
+    "link": "https://yourwebsite.com",
+    "lastBuildDate": "Tue, 23 Feb 2024 00:00:00 GMT",
+    "pubDate": "Tue, 23 Feb 2024 00:00:00 GMT",
     "language": "en-us",
-    "description": null,
+    "category": "Category 1, Category 2, Category 3",
+    "description": "Description of your channel",
     "items": [
         {
-            "title": "Israel-Hamas War: Israeli Warning Raises Prospect of a Broader War",
-            "pubDate": "Thu, 28 Dec 2023 14:17:36 +0000",
-            "link": "https://www.nytimes.com/live/2023/12/28/world/israel-hamas-war-gaza-news"
+            "title": "Item 1 Title",
+            "author": "Author Name 1",
+            "pubDate": "Tue, 23 Feb 2024 00:00:00 GMT",
+            "link": "https://yourwebsite.com/item1",
+            "category": "Item Category 1, Item Category 2",
+            "description": "Description of Item 1"
+        },
+        {
+            "title": "Item 2 Title",
+            "author": "Author Name 2",
+            "pubDate": "Tue, 23 Feb 2024 00:00:00 GMT",
+            "link": "https://yourwebsite.com/item2",
+            "category": "Item Category 2, Item Category 3",
+            "description": "Description of Item 2"
         }
     ]
 }

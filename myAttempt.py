@@ -88,12 +88,12 @@ def xml_several_tags_appender(root, app_list, app_dict, tag_name, out_tag_name):
     Appends several xml tags with modified console output tag name to app_list and creates item of app_dict for future json creation usage
     '''
     try: 
-        tag_list = root.findall(tag_name).text
-        if tag_list == []:
-            tag_list = None
-        else:
-            app_list.append(f'{out_tag_name}{tag_list}')
-            app_dict[tag_name] = tag_list
+        tag_list = root.findall(tag_name)
+        tag_text = ''
+        for elem in tag_list:
+            tag_text += ', ' + elem.text
+        app_list.append(f'{out_tag_name}{tag_text[2:]}')
+        app_dict[tag_name] = tag_text[2:]
     except:
         pass
 
