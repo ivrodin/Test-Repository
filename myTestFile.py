@@ -49,4 +49,5 @@ xml_file = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 
-rss_parser(xml_file, json= True, limit=2)
+a = rss_parser(xml_file, limit=2)
+print("\n".join(a))
