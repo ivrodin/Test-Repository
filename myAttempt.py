@@ -97,7 +97,6 @@ def xml_several_tags_appender(root, app_list, app_dict, tag_name, out_tag_name, 
             tag_list = []
             for elem in tag_memory_list:
                 if channel_flag is True:
-                    # tag_string = (', '.join(elem.text))
                     tag_string += ', ' + elem.text
                     tag_output = tag_string[2:] + ''
                 else:
