@@ -91,4 +91,4 @@ a = rss_parser(xml_file, limit=2, json=True) # with categories
 
 # a = rss_parser(xml_file_no_categories, limit=2, json=True) # with no categories
 
-print("\n".join(a))
+print("\n".join(a)) 
