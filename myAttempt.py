@@ -74,7 +74,7 @@ def rss_parser(
 
 def xml_one_tag_appender(root, app_list, app_dict, tag_name, out_tag_name):
     '''
-    Appends 1 xml tag with modified console output tag name to app_list and creates item of app_dict for future json creation usage
+    Appends xml tag with modified console output tag name to app_list and creates item of app_dict for future json creation usage
     '''
     try:
         tag_text = root.find(tag_name).text
@@ -85,7 +85,11 @@ def xml_one_tag_appender(root, app_list, app_dict, tag_name, out_tag_name):
 
 def xml_several_tags_appender(root, app_list, app_dict, tag_name, out_tag_name, channel_flag):
     '''
+    Created specially for 'category' tag parsing
     Appends several xml tags with modified console output tag name to app_list and creates item of app_dict for future json creation usage
+    In case of channel 'category' tags creates string output
+    In case of items 'category' tags creates list output (primarly for better json representation)
+    channel_flag: deternines if 'category' tag parsed for channel or items
     '''
     try: 
         tag_memory_list = root.findall(tag_name)
