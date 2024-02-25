@@ -58,7 +58,7 @@ def rss_parser(
 
     for channel_tag_key, channel_out_value in channel_tag_to_stdout_dict.items():
         if channel_tag_key == 'category':
-            xml_several_tags_appender(xml_root[0], rss_list, rss_dict, channel_tag_key, channel_out_value)
+            xml_several_tags_appender(xml_root[0], rss_list, rss_dict, channel_tag_key, channel_out_value, channel_flag=True)
         else:
             xml_one_tag_appender(xml_root[0], rss_list, rss_dict, channel_tag_key, channel_out_value)
     
@@ -83,17 +83,28 @@ def xml_one_tag_appender(root, app_list, app_dict, tag_name, out_tag_name):
     except:
         pass
 
-def xml_several_tags_appender(root, app_list, app_dict, tag_name, out_tag_name):
+def xml_several_tags_appender(root, app_list, app_dict, tag_name, out_tag_name, channel_flag):
     '''
     Appends several xml tags with modified console output tag name to app_list and creates item of app_dict for future json creation usage
     '''
     try: 
-        tag_list = root.findall(tag_name)
-        tag_text = ''
-        for elem in tag_list:
-            tag_text += ', ' + elem.text
-        app_list.append(f'{out_tag_name}{tag_text[2:]}')
-        app_dict[tag_name] = tag_text[2:]
+        tag_memory_list = root.findall(tag_name)
+
+        if tag_memory_list == [] and channel_flag is True:
+            tag_output = ''
+        else:
+            tag_string = ''
+            tag_list = []
+            for elem in tag_memory_list:
+                if channel_flag is True:
+                    # tag_string = (', '.join(elem.text))
+                    tag_string += ', ' + elem.text
+                    tag_output = tag_string[2:] + ''
+                else:
+                    tag_list.append(elem.text)
+                    tag_output = tag_list
+        app_list.append(f'{out_tag_name}{tag_output}')
+        app_dict[tag_name] = tag_output
     except:
         pass
 
@@ -117,7 +128,7 @@ def item_parser(root, items_tags_outs_dict, app_list, app_dict, items_limit):
         app_list.append('') # used for adding an empty line between channel and items in console output
         for item_tag_key, item_out_value in items_tags_outs_dict.items():
             if item_tag_key == 'category':
-                xml_several_tags_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
+                xml_several_tags_appender(current_item, item_list, item_dict, item_tag_key, item_out_value, channel_flag=False)
             else:
                 xml_one_tag_appender(current_item, item_list, item_dict, item_tag_key, item_out_value)
         if counter == items_limit:

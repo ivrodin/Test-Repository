@@ -48,6 +48,40 @@ xml_file = """<?xml version="1.0" encoding="UTF-8"?>
 </rss>
 """
 
+xml_file_no_categories = """<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Your Channel Title</title>
+    <link>https://yourwebsite.com</link>
+    <description>Description of your channel</description>
 
-a = rss_parser(xml_file, limit=2)
+    <item>
+      <title>Item 1 Title</title>
+      <author>Author Name 1</author>
+      <pubDate>Tue, 23 Feb 2024 00:00:00 GMT</pubDate>
+      <link>https://yourwebsite.com/item1</link>
+      <description>Description of Item 1</description>
+    </item>
+    
+    <item>
+      <title>Item 2 Title</title>
+      <author>Author Name 2</author>
+      <pubDate>Tue, 23 Feb 2024 00:00:00 GMT</pubDate>
+      <link>https://yourwebsite.com/item2</link>
+      <description>Description of Item 2</description>
+    </item>
+    
+    <item>
+      <title>Item 3 Title</title>
+      <author>Author Name 3</author>
+      <pubDate>Tue, 23 Feb 2024 00:00:00 GMT</pubDate>
+      <link>https://yourwebsite.com/item3</link>
+      <description>Description of Item 3</description>
+    </item>
+    
+  </channel>
+</rss>
+"""
+
+a = rss_parser(xml_file_no_categories, limit=0)
 print("\n".join(a))

@@ -4,7 +4,7 @@
     "lastBuildDate": "Tue, 23 Feb 2024 00:00:00 GMT",
     "pubDate": "Tue, 23 Feb 2024 00:00:00 GMT",
     "language": "en-us",
-    "category": "Category 1, Category 2, Category 3",
+    "category": "",
     "description": "Description of your channel",
     "items": [
         {
@@ -12,7 +12,6 @@
             "author": "Author Name 1",
             "pubDate": "Tue, 23 Feb 2024 00:00:00 GMT",
             "link": "https://yourwebsite.com/item1",
-            "category": "Item Category 1, Item Category 2",
             "description": "Description of Item 1"
         },
         {
@@ -20,7 +19,6 @@
             "author": "Author Name 2",
             "pubDate": "Tue, 23 Feb 2024 00:00:00 GMT",
             "link": "https://yourwebsite.com/item2",
-            "category": "Item Category 2, Item Category 3",
             "description": "Description of Item 2"
         }
     ]
