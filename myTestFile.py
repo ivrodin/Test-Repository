@@ -53,6 +53,10 @@ xml_file_no_categories = """<?xml version="1.0" encoding="UTF-8"?>
   <channel>
     <title>Your Channel Title</title>
     <link>https://yourwebsite.com</link>
+    <lastBuildDate>Tue, 23 Feb 2024 00:00:00 GMT</lastBuildDate>
+    <pubDate>Tue, 23 Feb 2024 00:00:00 GMT</pubDate>
+    <language>en-us</language>
+    <managingEditor>editor@example.com (Editor Name)</managingEditor>
     <description>Description of your channel</description>
 
     <item>
@@ -83,5 +87,8 @@ xml_file_no_categories = """<?xml version="1.0" encoding="UTF-8"?>
 </rss>
 """
 
-a = rss_parser(xml_file_no_categories, limit=0)
+a = rss_parser(xml_file, limit=2, json=True) # with categories
+
+# a = rss_parser(xml_file_no_categories, limit=2, json=True) # with no categories
+
 print("\n".join(a))

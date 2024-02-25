@@ -93,20 +93,21 @@ def xml_several_tags_appender(root, app_list, app_dict, tag_name, out_tag_name, 
     '''
     try: 
         tag_memory_list = root.findall(tag_name)
+        tag_string = ''
+        tag_list = []
 
-        if tag_memory_list == [] and channel_flag is True:
-            tag_output = ''
-        else:
-            tag_string = ''
-            tag_list = []
+        if channel_flag is True:
+            if tag_memory_list == []:
+                tag_output = ''
             for elem in tag_memory_list:
-                if channel_flag is True:
-                    tag_string += ', ' + elem.text
-                    tag_output = tag_string[2:] + ''
-                else:
-                    tag_list.append(elem.text)
-                    tag_output = tag_list
-        app_list.append(f'{out_tag_name}{tag_output}')
+                tag_string += ', ' + elem.text
+                tag_output = tag_string[2:] + ''
+            app_list.append(f'{out_tag_name}{tag_output}')
+        else:
+            for elem in tag_memory_list:
+                tag_list.append(elem.text)
+                tag_output = tag_list
+            app_list.append(f"{out_tag_name}{', '.join(tag_output)}")
         app_dict[tag_name] = tag_output
     except:
         pass
