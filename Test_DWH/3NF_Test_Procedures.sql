@@ -151,77 +151,42 @@ BEGIN
 
     SELECT count(*) INTO count_before FROM bl_cl.lkp_customers;
 
-	WITH customer_id_mapping AS (
-	    SELECT DISTINCT
-	        customer_src_id,
-	        nextval('bl_cl.lkp_customers_id_seq') AS customer_id
-	    FROM (
-	        SELECT 
-	            COALESCE(UPPER(s.customer_id), 'N.A.') AS customer_src_id
-	        FROM 
-	            sa_online_sales.src_online_sales s
-	        UNION
-	        SELECT 
-	            COALESCE(UPPER(s.customer_id), 'N.A.') AS customer_src_id
-	        FROM 
-	            sa_restaurant_sales.src_restaurant_sales s
-	    ) AS src
-	    WHERE NOT EXISTS (
-	        SELECT 1 
-	        FROM bl_cl.lkp_customers t
-	        WHERE UPPER(src.customer_src_id) = UPPER(t.customer_src_id)
-	    )
-	),
-	combined_src AS (
-	    SELECT 
-	        cm.customer_id,
-	        src.customer_src_id,
-	        src.source_system,
-	        src.source_entity,
-	        src.customer_full_name,
-	        src.insert_dt,
-	        src.update_dt
-	    FROM (
-	        SELECT customer_src_id, customer_id FROM customer_id_mapping
-	    ) AS cm
-	    JOIN (
-	        SELECT DISTINCT 
-	            COALESCE(UPPER(s.customer_id), 'N.A.') AS customer_src_id,
-	            'SA_ONLINE_SALES' AS source_system,
-	            'SRC_ONLINE_SALES' AS source_entity,
-	            COALESCE(UPPER(s.customer_full_name), 'N.A.') AS customer_full_name,
-	            CURRENT_DATE AS insert_dt,
-	            CURRENT_DATE AS update_dt
-	        FROM 
-	            sa_online_sales.src_online_sales s
-	        WHERE NOT EXISTS (
-	            SELECT 1 
-	            FROM bl_cl.lkp_customers t
-	            WHERE UPPER(s.customer_id) = UPPER(t.customer_src_id)
-	            	AND UPPER(t.source_system) = 'SA_ONLINE_SALES'
-	            	AND UPPER(t.source_entity) = 'SRC_ONLINE_SALES'
-					AND UPPER(t.customer_full_name) = upper(s.customer_full_name)
-	        )
-	        UNION ALL
-	        SELECT DISTINCT
-	            COALESCE(UPPER(s.customer_id), 'N.A.') AS customer_src_id,
-	            'SA_RESTAURANT_SALES' AS source_system,
-	            'SRC_RESTAURANT_SALES' AS source_entity,
-	            COALESCE(UPPER(s.customer_full_name), 'N.A.') AS customer_full_name,
-	            CURRENT_DATE AS insert_dt,
-	            CURRENT_DATE AS update_dt
-	        FROM 
-	            sa_restaurant_sales.src_restaurant_sales s
-	        WHERE NOT EXISTS (
-	            SELECT 1 
-	            FROM bl_cl.lkp_customers t
-	            WHERE UPPER(s.customer_id) = UPPER(t.customer_src_id)
-	            	AND UPPER(t.source_system) = 'SA_RESTAURANT_SALES'
-	            	AND UPPER(t.source_entity) = 'SRC_RESTAURANT_SALES'
-					AND UPPER(t.customer_full_name) = upper(s.customer_full_name)
-	        )
-	    ) AS src
-	    ON src.customer_src_id = cm.customer_src_id
+	WITH combined_src AS (
+		SELECT DISTINCT 
+		    COALESCE(UPPER(s.customer_id), 'N.A.') AS customer_src_id,
+		    'SA_ONLINE_SALES' AS source_system,
+		    'SRC_ONLINE_SALES' AS source_entity,
+		    COALESCE(UPPER(s.customer_full_name), 'N.A.') AS customer_full_name,
+		    CURRENT_DATE AS insert_dt,
+		    CURRENT_DATE AS update_dt
+		FROM 
+		    sa_online_sales.src_online_sales s
+		WHERE NOT EXISTS (
+		    SELECT 1 
+		    FROM bl_cl.lkp_customers t
+		    WHERE UPPER(s.customer_id) = UPPER(t.customer_src_id)
+		    	AND UPPER(t.source_system) = 'SA_ONLINE_SALES'
+		    	AND UPPER(t.source_entity) = 'SRC_ONLINE_SALES'
+				AND UPPER(t.customer_full_name) = upper(s.customer_full_name)
+		)
+		UNION ALL
+		SELECT DISTINCT
+		    COALESCE(UPPER(s.customer_id), 'N.A.') AS customer_src_id,
+		    'SA_RESTAURANT_SALES' AS source_system,
+		    'SRC_RESTAURANT_SALES' AS source_entity,
+		    COALESCE(UPPER(s.customer_full_name), 'N.A.') AS customer_full_name,
+		    CURRENT_DATE AS insert_dt,
+		    CURRENT_DATE AS update_dt
+		FROM 
+		    sa_restaurant_sales.src_restaurant_sales s
+		WHERE NOT EXISTS (
+		    SELECT 1 
+		    FROM bl_cl.lkp_customers t
+		    WHERE UPPER(s.customer_id) = UPPER(t.customer_src_id)
+		    	AND UPPER(t.source_system) = 'SA_RESTAURANT_SALES'
+		    	AND UPPER(t.source_entity) = 'SRC_RESTAURANT_SALES'
+				AND UPPER(t.customer_full_name) = upper(s.customer_full_name)
+		)
 	)
 	INSERT INTO bl_cl.lkp_customers (
 	    customer_id,
@@ -233,7 +198,7 @@ BEGIN
 	    update_dt
 	)
 	SELECT 
-	    customer_id,
+	    (row_number() OVER (PARTITION BY source_system ORDER BY customer_src_id) + COALESCE((SELECT max(customer_id) FROM bl_cl.lkp_customers lc), 0)),
 	    customer_src_id,
 	    source_system,
 	    source_entity,
@@ -241,7 +206,7 @@ BEGIN
 	    insert_dt,
 	    update_dt  
 	FROM combined_src
-	ON CONFLICT (customer_src_id, source_system, source_entity, customer_full_name) DO UPDATE
+	ON CONFLICT (customer_src_id, source_system, source_entity) DO UPDATE
 	SET 
 	    customer_full_name = EXCLUDED.customer_full_name,
 	    update_dt = EXCLUDED.update_dt;

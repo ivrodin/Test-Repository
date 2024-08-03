@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS bl_cl.lkp_customers(
 	customer_full_name varchar(20) NOT NULL,
 	insert_dt date NOT NULL,
 	update_dt date NOT NULL,
-	CONSTRAINT lkp_customers_pk UNIQUE (customer_src_id, source_system, source_entity, customer_full_name)
+	CONSTRAINT lkp_customers_pk UNIQUE (customer_src_id, source_system, source_entity)
 );
 
 
