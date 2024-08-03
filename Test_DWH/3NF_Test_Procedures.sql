@@ -404,7 +404,7 @@ BEGIN
     SELECT count(*) INTO count_before FROM bl_3nf.ce_couriers;
 
 	WITH initial_table AS (
-		SELECT 
+		SELECT DISTINCT
 			COALESCE(upper(courier_id), 'N.A.') AS courier_src_id,
 			'SA_ONLINE_SALES' AS source_system,
 			'SRC_ONLINE_SALES' AS source_entity,
@@ -417,10 +417,9 @@ BEGIN
 			SELECT 1 FROM bl_3nf.ce_couriers t 
 			WHERE upper(s.courier_id) = upper(t.courier_src_id) AND 
 				upper(t.source_system) = 'SA_ONLINE_SALES' AND 
-				upper(t.source_entity) = 'SRC_ONLINE_SALES'
+				upper(t.source_entity) = 'SRC_ONLINE_SALES' AND 
+				upper(s.courier_full_name) = upper(t.courier_full_name)
 		)
-		GROUP BY 
-			courier_src_id, courier_full_name 
 	)
 	INSERT INTO bl_3nf.ce_couriers (
 		courier_id,
@@ -442,7 +441,7 @@ BEGIN
 		insert_dt,
 		update_dt
 	FROM initial_table
-	ON CONFLICT (courier_id, courier_src_id, source_system, source_entity) DO UPDATE
+	ON CONFLICT (courier_src_id, source_system, source_entity) DO UPDATE
 	SET 
 	    courier_full_name = EXCLUDED.courier_full_name,
 	    update_dt = EXCLUDED.update_dt;

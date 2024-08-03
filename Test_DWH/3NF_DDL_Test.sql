@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS bl_3nf.ce_couriers(
 	courier_full_name varchar(30) NOT NULL,
 	insert_dt date NOT NULL,
 	update_dt date NOT NULL,
-	CONSTRAINT couriers_unique UNIQUE (courier_id, courier_src_id, source_system, source_entity)
+	CONSTRAINT couriers_unique UNIQUE (courier_src_id, source_system, source_entity)
 );
 
 CREATE TABLE IF NOT EXISTS bl_3nf.ce_deliveries(
