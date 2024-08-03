@@ -22,9 +22,9 @@ CREATE TABLE IF NOT EXISTS bl_cl.lkp_customers(
 	source_system varchar(255) NOT NULL,
 	source_entity varchar(255) NOT NULL,
 	customer_full_name varchar(20) NOT NULL,
-	insert_dt date NOT NULL,
-	update_dt date NOT NULL,
-	CONSTRAINT lkp_customers_pk UNIQUE (customer_src_id, source_system, source_entity)
+	insert_dt timestamp NOT NULL,
+	update_dt timestamp NOT NULL,
+	CONSTRAINT lkp_customers_unique UNIQUE (customer_src_id, source_system, source_entity)
 );
 
 
@@ -34,9 +34,9 @@ CREATE TABLE IF NOT EXISTS bl_cl.lkp_pizzas_types(
 	source_system varchar(255) NOT NULL,
 	source_entity varchar(255) NOT NULL,
 	pizza_type_name varchar(20) NOT NULL,
-	insert_dt date NOT NULL,
-	update_dt date NOT NULL,
-	CONSTRAINT lkp_pizzas_types_pk PRIMARY KEY (pizza_type_id, pizza_type_src_id, source_system, source_entity)
+	insert_dt timestamp NOT NULL,
+	update_dt timestamp NOT NULL,
+	CONSTRAINT lkp_pizzas_types_unique UNIQUE (pizza_type_src_id, source_system, source_entity)
 );
 
 CREATE TABLE IF NOT EXISTS bl_cl.lkp_pizzas_sizes(
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS bl_cl.lkp_pizzas_sizes(
 	source_system varchar(255) NOT NULL,
 	source_entity varchar(255) NOT NULL,
 	pizza_size_name varchar(20) NOT NULL,
-	insert_dt date NOT NULL,
-	update_dt date NOT NULL,
-	CONSTRAINT lkp_pizzas_sizes_pk PRIMARY KEY (pizza_size_id, pizza_size_src_id, source_system, source_entity)
+	insert_dt timestamp NOT NULL,
+	update_dt timestamp NOT NULL,
+	CONSTRAINT lkp_pizzas_sizes_unique UNIQUE (pizza_size_src_id, source_system, source_entity)
 );

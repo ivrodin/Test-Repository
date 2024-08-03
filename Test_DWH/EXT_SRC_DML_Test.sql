@@ -26,7 +26,7 @@ SELECT
 	e.employee_full_name, 
 	e.in_or_out
 FROM 
-	sa_restaurant_sales.ext_restaurant_sales_1 e
+	sa_restaurant_sales.ext_restaurant_sales_2 e
 WHERE NOT EXISTS (
 	SELECT 
 		1 
@@ -84,7 +84,7 @@ SELECT
 	district,
 	address
 FROM 
-	sa_online_sales.ext_online_sales_1 e
+	sa_online_sales.ext_online_sales_2 e
 WHERE NOT EXISTS (
 	SELECT 
 		1 
