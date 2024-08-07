@@ -1,3 +1,7 @@
+SET ROLE developer_role;
+
+--RESET ROLE ;
+
 
 CREATE OR REPLACE PROCEDURE bl_cl.upd_load_metadata ()
 AS $$
@@ -58,6 +62,28 @@ BEGIN
 			WHERE upper(pizza_size_src_id) = upper(src_id);
 	ELSE
 		SELECT nextval('bl_cl.lkp_pizzas_sizes_id_seq') INTO result_id;
+	END IF;
+	RETURN result_id;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION bl_cl.ce_customers_scd_ids(src_id varchar(255), src_syst varchar(255), src_ent varchar(255))
+RETURNS INT AS $$
+DECLARE 
+	result_id int;
+BEGIN
+	IF EXISTS (
+		SELECT 1 FROM bl_3nf.ce_customers_scd 
+		WHERE upper(customer_src_id) = upper(src_id) AND 
+			upper(source_system) = upper(src_syst) AND
+			upper(source_entity) = upper(src_ent)
+		) THEN
+		SELECT customer_id INTO result_id FROM bl_3nf.ce_customers_scd 
+		WHERE upper(customer_src_id) = upper(src_id) AND 
+			upper(source_system) = upper(src_syst) AND
+			upper(source_entity) = upper(src_ent);
+	ELSE
+		SELECT nextval('bl_3nf.ce_customers_scd_id_seq') INTO result_id;
 	END IF;
 	RETURN result_id;
 END;
@@ -634,7 +660,7 @@ BEGIN
 	)
 	INSERT INTO bl_3nf.ce_customers_scd (customer_id, customer_src_id, source_system, source_entity, customer_full_name, is_active, start_dt, end_dt, insert_dt)
     SELECT 
-        nextval('bl_3nf.ce_customers_scd_id_seq'),
+        (SELECT * FROM bl_cl.ce_customers_scd_ids(s.customer_src_id, s.source_system, s.source_entity)),
 		s.customer_src_id,
 		s.source_system,
 		s.source_entity,
@@ -697,7 +723,7 @@ BEGIN
 	)
 	INSERT INTO bl_3nf.ce_customers_scd (customer_id, customer_src_id, source_system, source_entity, customer_full_name, is_active, start_dt, end_dt, insert_dt)
     SELECT 
-        nextval('bl_3nf.ce_customers_scd_id_seq'),
+        (SELECT * FROM bl_cl.ce_customers_scd_ids(s.customer_src_id, s.source_system, s.source_entity)),
 		s.customer_src_id,
 		s.source_system,
 		s.source_entity,
@@ -1176,6 +1202,819 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
+CREATE OR REPLACE PROCEDURE bl_cl.dim_addresses_procedure(
+    OUT username name,
+    OUT table_name text,
+    OUT procedure_name text,
+    OUT rows_updated int,
+    OUT rows_inserted int,
+    OUT procedure_starttime text
+) AS $$
+DECLARE 
+    count_before INT;
+    count_after INT;
+    rows_aff INT;
+BEGIN 
+
+    SELECT count(*) INTO count_before FROM bl_dm.dim_addresses;
+
+	WITH init_table AS (
+		SELECT 
+			ca.address_id AS address_src_id,
+			'BL_3NF' AS source_system,
+			'CE_ADDRESSES' AS source_entity ,
+			ca.address_name AS address_name,
+			ca.district_id AS district_src_id ,
+			cd.district_name AS distict_name,
+			current_timestamp AS insert_dt,
+			current_timestamp AS update_dt
+		FROM bl_3nf.ce_addresses ca 
+		LEFT JOIN bl_3nf.ce_districts cd ON ca.district_id = cd.district_id 
+	)
+	INSERT INTO bl_dm.dim_addresses (address_surr_id, address_src_id, source_system, source_entity, address_name, district_src_id, district_name, insert_dt, update_dt)
+	SELECT 
+		nextval('bl_dm.dim_addresses_surr_id_seq'),
+		address_src_id,
+		source_system,
+		source_entity ,
+		address_name,
+		district_src_id ,
+		distict_name,
+		insert_dt,
+		update_dt
+	FROM init_table s
+	WHERE NOT EXISTS (
+		SELECT 1 FROM bl_dm.dim_addresses t 
+		WHERE upper(t.address_src_id::TEXT) = upper(s.address_src_id::TEXT) AND 
+			upper(t.district_src_id::TEXT) = upper(s.district_src_id::TEXT)
+	);
+
+    GET DIAGNOSTICS rows_aff = ROW_COUNT;
+
+    SELECT count(*) INTO count_after FROM bl_dm.dim_addresses;
+
+    rows_inserted := count_after - count_before;
+    rows_updated := rows_aff - rows_inserted;
+    username := current_user;
+    table_name := 'bl_dm.dim_addresses';
+    procedure_name := 'bl_cl.dim_addresses_procedure';
+    procedure_starttime := current_timestamp::text;
+    
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE bl_cl.dim_pizzas_procedure(
+    OUT username name,
+    OUT table_name text,
+    OUT procedure_name text,
+    OUT rows_updated int,
+    OUT rows_inserted int,
+    OUT procedure_starttime text
+) AS $$
+DECLARE 
+    count_before INT;
+    count_after INT;
+    rows_aff INT;
+BEGIN 
+
+    SELECT count(*) INTO count_before FROM bl_dm.dim_pizzas;
+
+	WITH init_table AS (
+		SELECT 
+			upper(cp.pizza_id::TEXT) AS pizza_src_id,
+			'BL_3NF' AS source_system,
+			'CE_PIZZAS' AS source_entity ,
+			cp.pizza_name AS pizza_name,
+			cp.pizza_type_id AS pizza_type_src_id ,
+			cpt.pizza_type_name AS pizza_type_name ,
+			cp.pizza_size_id AS pizza_size_src_id ,
+			cps.pizza_size_name AS pizza_size_name ,
+			current_timestamp AS insert_dt,
+			current_timestamp AS update_dt
+		FROM bl_3nf.ce_pizzas cp 
+		LEFT JOIN bl_3nf.ce_pizzas_types cpt ON cp.pizza_type_id = cpt.pizza_type_id
+		LEFT JOIN bl_3nf.ce_pizzas_sizes cps ON cp.pizza_size_id = cps.pizza_size_id
+	)
+	INSERT INTO bl_dm.dim_pizzas (pizza_surr_id, pizza_src_id, source_system, source_entity, pizza_name, pizza_type_src_id, pizza_type_name, pizza_size_src_id, pizza_size_name, insert_dt, update_dt)
+	SELECT 
+		nextval('bl_dm.dim_pizzas_surr_id_seq'),
+		pizza_src_id, 
+		source_system, 
+		source_entity, 
+		pizza_name, 
+		pizza_type_src_id, 
+		pizza_type_name, 
+		pizza_size_src_id, 
+		pizza_size_name, 
+		insert_dt, 
+		update_dt
+	FROM init_table s
+	WHERE NOT EXISTS (
+		SELECT 1 FROM bl_dm.dim_pizzas t 
+		WHERE upper(t.pizza_src_id::TEXT) = upper(s.pizza_src_id::TEXT) AND 
+			upper(t.pizza_type_src_id::TEXT) = upper(s.pizza_type_src_id::TEXT) AND 
+			upper(t.pizza_size_src_id::TEXT) = upper(s.pizza_size_src_id::TEXT)
+	);
+
+    GET DIAGNOSTICS rows_aff = ROW_COUNT;
+
+    SELECT count(*) INTO count_after FROM bl_dm.dim_pizzas;
+
+    rows_inserted := count_after - count_before;
+    rows_updated := rows_aff - rows_inserted;
+    username := current_user;
+    table_name := 'bl_dm.dim_pizzas';
+    procedure_name := 'bl_cl.dim_pizzas_procedure';
+    procedure_starttime := current_timestamp::text;
+    
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE bl_cl.dim_customers_scd_procedure(
+    OUT username name,
+    OUT table_name text,
+    OUT procedure_name text,
+    OUT rows_updated int,
+    OUT rows_inserted int,
+    OUT procedure_starttime text
+) AS $$
+DECLARE 
+	counts_before INT;
+	counts_after INT;
+	rows_aff_default INT;
+    rows_aff INT;
+BEGIN 
+
+	SELECT count(*) INTO counts_before FROM bl_dm.dim_customers_scd;
+
+	WITH init_table AS (
+		SELECT 
+			customer_id::text AS customer_src_id ,
+			'BL_3NF' AS source_system,
+			'CE_CUSTOMERS_SCD' AS source_entity ,
+			CASE 
+				WHEN source_system = 'SA_ONLINE_SALES' THEN 'ONLINE'
+				WHEN source_system = 'SA_RESTAURANT_SALES' THEN 'OFFLINE'
+				ELSE 'MANUAL'
+			END AS original_source,
+			customer_full_name AS customer_full_name,
+			is_active AS is_active,
+			start_dt AS start_dt,
+			end_dt AS end_dt,
+			current_timestamp AS insert_dt
+		FROM bl_3nf.ce_customers_scd s
+		WHERE NOT EXISTS (            
+		SELECT 1 FROM bl_dm.dim_customers_scd t 
+            WHERE upper(s.customer_id::text) = upper(t.customer_src_id) AND 
+				upper(t.original_source) = 'ONLINE' AND 
+				upper(s.customer_full_name) = upper(t.customer_full_name) AND 
+				upper(s.is_active) = upper(t.is_active) OR 
+				upper(s.customer_id::text) = upper(t.customer_src_id) AND 
+				upper(t.original_source) = 'OFFLINE' AND 
+				upper(s.customer_full_name) = upper(t.customer_full_name) AND 
+				upper(s.is_active) = upper(t.is_active)
+		) AND customer_id::int > 0
+	)
+	UPDATE bl_dm.dim_customers_scd t
+	SET is_active = 'N',
+		end_dt = current_timestamp
+	WHERE EXISTS (
+		SELECT 1 FROM init_table s
+		WHERE t.customer_src_id::text = s.customer_src_id::TEXT AND 
+			t.source_system = s.source_system AND 
+			t.source_entity = s.source_entity AND
+			t.original_source = s.original_source);
+
+    GET DIAGNOSTICS rows_aff = ROW_COUNT;
+	
+	WITH init_table AS (
+		SELECT 
+			customer_id::text AS customer_src_id ,
+			'BL_3NF' AS source_system,
+			'CE_CUSTOMERS_SCD' AS source_entity ,
+			CASE 
+				WHEN source_system = 'SA_ONLINE_SALES' THEN 'ONLINE'
+				WHEN source_system = 'SA_RESTAURANT_SALES' THEN 'OFFLINE'
+				ELSE 'MANUAL'
+			END AS original_source,
+			customer_full_name AS customer_full_name,
+			is_active AS is_active,
+			start_dt AS start_dt,
+			end_dt AS end_dt,
+			current_timestamp AS insert_dt
+		FROM bl_3nf.ce_customers_scd s
+		WHERE NOT EXISTS (            
+		SELECT 1 FROM bl_dm.dim_customers_scd t 
+            WHERE upper(s.customer_id::text) = upper(t.customer_src_id) AND 
+				upper(t.original_source) = 'ONLINE' AND 
+				upper(s.customer_full_name) = upper(t.customer_full_name) OR 
+				upper(s.customer_id::text) = upper(t.customer_src_id) AND 
+				upper(t.original_source) = 'OFFLINE' AND 
+				upper(s.customer_full_name) = upper(t.customer_full_name)
+		) AND customer_id::int > 0
+	)
+	INSERT INTO bl_dm.dim_customers_scd (customer_surr_id, customer_src_id, source_system, source_entity, original_source, customer_full_name, is_active, start_dt, end_dt, insert_dt)
+	SELECT 
+		nextval('bl_dm.dim_customers_scd_surr_id_seq'),
+		customer_src_id, 
+		source_system, 
+		source_entity, 
+		original_source, 
+		customer_full_name, 
+		is_active, 
+		start_dt, 
+		end_dt, 
+		insert_dt
+		FROM init_table;
+
+	SELECT count(*) INTO counts_after FROM bl_dm.dim_customers_scd;
+
+    username := current_user;
+    table_name := 'bl_dm.dim_customers_scd';
+    procedure_name := 'bl_cl.dim_customers_scd_procedure';
+    rows_inserted := counts_after - counts_before;
+    rows_updated := (rows_aff);
+    procedure_starttime := current_timestamp::text;
+
+END;
+$$ LANGUAGE plpgsql;
+	
+
+CREATE OR REPLACE PROCEDURE bl_cl.ce_orders_procedure(
+    OUT username name,
+    OUT table_name text,
+    OUT procedure_name text,
+    OUT rows_updated int,
+    OUT rows_inserted int,
+    OUT procedure_starttime text
+) AS $$
+DECLARE 
+	counts_before INT;
+	counts_after INT;
+    rows_aff INT;
+BEGIN 
+
+	SELECT count(*) INTO counts_before FROM bl_3nf.ce_orders;
+
+	WITH online_orders AS (
+		SELECT 
+			COALESCE (upper(s.order_id), 'N.A.') AS order_src_id,
+			'SA_ONLINE_SALES' AS source_system,
+			'SRC_ONLINE_SALES' AS source_entity,
+			COALESCE (TO_TIMESTAMP(s."timestamp", 'DD-MM-YY HH24:MI')::TIMESTAMP WITHOUT TIME ZONE, '1900-12-31 00:00:00'::timestamp) AS order_timestamp,
+			'ONLINE'::bl_3nf.type_order AS order_type,
+			-1 AS employee_id,
+			'N.A.'::bl_3nf.type_offline_order AS offline_order_type,
+			COALESCE ((
+				SELECT cd.delivery_id FROM bl_3nf.ce_deliveries cd 
+				LEFT JOIN bl_3nf.ce_couriers cc ON cd.courier_id = cc.courier_id
+				WHERE upper(s.delivery_id) = upper(cd.delivery_src_id) AND 
+					upper(s.courier_id) = upper(cc.courier_src_id)
+			), -1) AS delivery_id,
+			COALESCE ((
+				SELECT cc.customer_id FROM bl_3nf.ce_customers_scd cc
+				WHERE upper(s.customer_id) = upper(cc.customer_src_id) AND 
+					upper(cc.source_system) = 'SA_ONLINE_SALES' AND 
+					upper(cc.source_entity) = 'SRC_ONLINE_SALES' AND 
+					cc.is_active = 'Y'
+			), -1) AS customer_id,
+			COALESCE ((
+				SELECT ca.address_id FROM bl_3nf.ce_addresses ca
+				LEFT JOIN bl_3nf.ce_districts cd ON ca.district_id = cd.district_id
+				WHERE upper(s.address) = upper(ca.address_src_id) AND 
+					upper(s.district) = upper(cd.district_src_id)
+			), -1) AS address_id,
+			COALESCE ((
+				SELECT cp.pizza_id FROM bl_3nf.ce_pizzas cp
+				LEFT JOIN bl_3nf.ce_pizzas_types cpt ON cp.pizza_type_id = cpt.pizza_type_id
+				LEFT JOIN bl_3nf.ce_pizzas_sizes cps ON cp.pizza_size_id = cps.pizza_size_id
+				WHERE upper(s.pizza_name) = upper(cp.pizza_name) AND 
+					upper(s.pizza_type) = upper(cpt.pizza_type_name) AND 
+					upper(s."size") = upper(cps.pizza_size_name)
+			), -1) AS pizza_id,
+			COALESCE (s.price::decimal(6,2),-1) AS price,
+			current_timestamp AS insert_dt,
+			current_timestamp AS update_dt
+		FROM 
+			sa_online_sales.src_online_sales s
+		WHERE NOT EXISTS (
+			SELECT 1 FROM bl_3nf.ce_orders t
+			WHERE upper(t.order_src_id) = upper(s.order_id) AND 
+				upper(t.source_system) = 'SA_ONLINE_SALES' AND 
+				upper(t.source_entity) = 'SRC_ONLINE_SALES'
+		)
+	),  restaurant_orders AS (
+		SELECT 
+			COALESCE (upper(s.order_id), 'N.A.') AS order_src_id,
+			'SA_RESTAURANT_SALES' AS source_system,
+			'SRC_RESTAURANT_SALES' AS source_entity,
+			COALESCE (TO_TIMESTAMP(s."timestamp", 'DD-MM-YY HH24:MI')::TIMESTAMP WITHOUT TIME ZONE, 
+				'1900-12-31 00:00:00'::timestamp) AS order_timestamp,
+			'OFFLINE'::bl_3nf.type_order AS order_type,
+			COALESCE ((
+				SELECT ce.employee_id FROM bl_3nf.ce_employees ce
+				WHERE upper(ce.employee_src_id) = upper(s.employee_id)
+			), -1) AS employee_id,
+			COALESCE (s.in_or_out::bl_3nf.type_offline_order, 'N.A.'::bl_3nf.type_offline_order) AS offline_order_type,
+			-1 AS delivery_id,
+			COALESCE ((
+				SELECT cc.customer_id FROM bl_3nf.ce_customers_scd cc
+				WHERE upper(s.customer_id) = upper(cc.customer_src_id) AND 
+					upper(cc.source_system) = 'SA_RESTAURANT_SALES' AND 
+					upper(cc.source_entity) = 'SRC_RESTAURANT_SALES' AND 
+					cc.is_active = 'Y'
+			), -1) AS customer_id,
+			-1 AS address_id,
+			COALESCE ((
+				SELECT cp.pizza_id FROM bl_3nf.ce_pizzas cp
+				LEFT JOIN bl_3nf.ce_pizzas_types cpt ON cp.pizza_type_id = cpt.pizza_type_id
+				LEFT JOIN bl_3nf.ce_pizzas_sizes cps ON cp.pizza_size_id = cps.pizza_size_id
+				WHERE upper(s.pizza_name) = upper(cp.pizza_name) AND 
+					upper(s.pizza_type) = upper(cpt.pizza_type_name) AND 
+					upper(s."size") = upper(cps.pizza_size_name)
+			), -1) AS pizza_id,
+			COALESCE (s.price::decimal(6,2),-1) AS price,
+			current_timestamp AS insert_dt,
+			current_timestamp AS update_dt
+		FROM 
+			sa_restaurant_sales.src_restaurant_sales s
+		WHERE NOT EXISTS (
+			SELECT 1 FROM bl_3nf.ce_orders t
+			WHERE upper(t.order_src_id) = upper(s.order_id) AND 
+				upper(t.source_system) = 'SA_RESTAURANT_SALES' AND 
+				upper(t.source_entity) = 'SRC_RESTAURANT_SALES'
+		)
+	)
+	INSERT INTO bl_3nf.ce_orders (
+		order_id,
+		order_src_id,
+		source_system,
+		source_entity,
+		order_timestamp,
+		order_type,
+		employee_id,
+		offline_order_type,
+		delivery_id,
+		customer_id,
+		address_id,
+		pizza_id,
+		price,
+		insert_dt,
+		update_dt 
+	)
+	SELECT 
+		nextval('bl_3nf.ce_orders_id_seq'),
+		order_src_id,
+		source_system,
+		source_entity,
+		order_timestamp,
+		order_type,
+		employee_id,
+		offline_order_type,
+		delivery_id,
+		customer_id,
+		address_id,
+		pizza_id,
+		price,
+		insert_dt,
+		update_dt 
+	FROM online_orders
+	UNION ALL
+	SELECT 
+		nextval('bl_3nf.ce_orders_id_seq'),
+		order_src_id,
+		source_system,
+		source_entity,
+		order_timestamp,
+		order_type,
+		employee_id,
+		offline_order_type,
+		delivery_id,
+		customer_id,
+		address_id,
+		pizza_id,
+		price,
+		insert_dt,
+		update_dt 
+	FROM restaurant_orders;
+
+	GET DIAGNOSTICS rows_aff = ROW_COUNT;
+
+	SELECT count(*) INTO counts_after FROM bl_3nf.ce_orders;
+
+    username := current_user;
+    table_name := 'bl_3nf.ce_orders';
+    procedure_name := 'bl_cl.ce_orders_procedure';
+    rows_inserted := counts_after - counts_before;
+    rows_updated := (rows_aff) - rows_inserted;
+    procedure_starttime := current_timestamp::text;
+
+END;
+$$ LANGUAGE plpgsql;
+
+-- Creating comosity type for cursor instead of RECORD
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_type t
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        WHERE t.typname = 'order_record_type'
+        AND n.nspname = 'bl_dm'
+    ) THEN
+        CREATE TYPE bl_dm.order_record_type AS (
+            order_src_id text,
+            source_system text,
+            source_entity text,
+            order_name text,
+            employee_src_id int,
+            employee_full_name text,
+            order_type text,
+            offline_order_type text,
+            delivery_src_id int,
+            delivery_name text,
+            courier_src_id int,
+            courier_full_name text,
+            insert_dt timestamp,
+            update_dt timestamp
+        );
+    END IF;
+END $$;
+
+
+CREATE OR REPLACE PROCEDURE bl_cl.dim_orders_procedure(
+    OUT username name,
+    OUT table_name text,
+    OUT procedure_name text,
+    OUT rows_updated int,
+    OUT rows_inserted int,
+    OUT procedure_starttime text
+) AS $$
+DECLARE 
+    count_before INT;
+    count_after INT;
+    rows_aff INT := 0;
+    order_rec bl_dm.order_record_type;
+    row_cursor CURSOR FOR
+        SELECT 
+            order_id AS order_src_id,
+            'BL_3NF' AS source_system,
+            'CE_ORDERS' AS source_entity,
+            order_src_id AS order_name,
+            co.employee_id AS employee_src_id,
+            ce.employee_full_name AS employee_full_name,
+            order_type AS order_type,
+            offline_order_type AS offline_order_type,
+            co.delivery_id AS delivery_src_id,
+            cd.delivery_name AS delivery_name,
+            cd.courier_id AS courier_src_id,
+            cc.courier_full_name AS courier_full_name,
+            current_timestamp AS insert_dt,
+            current_timestamp AS update_dt
+        FROM bl_3nf.ce_orders co
+        LEFT JOIN bl_3nf.ce_deliveries cd ON co.delivery_id = cd.delivery_id
+		LEFT JOIN bl_3nf.ce_couriers cc ON cd.courier_id = cc.courier_id
+		LEFT JOIN bl_3nf.ce_employees ce ON ce.employee_id = co.employee_id
+        WHERE NOT EXISTS (
+            SELECT 1 FROM bl_dm.dim_orders t
+            WHERE upper(co.order_id::TEXT) = upper(t.order_src_id::TEXT) AND 
+                upper(co.order_type::TEXT) = upper(t.order_type::TEXT) AND 
+                upper(co.order_src_id::TEXT) = upper(t.order_name::TEXT)
+        );
+BEGIN 
+
+    SELECT count(*) INTO count_before FROM bl_dm.dim_orders;
+
+    OPEN row_cursor;
+
+    LOOP
+        FETCH row_cursor INTO order_rec;
+        EXIT WHEN NOT FOUND;
+
+        INSERT INTO bl_dm.dim_orders(order_surr_id, order_src_id, source_system, source_entity, order_name, employee_src_id, employee_full_name, order_type, offline_order_type, delivery_src_id, delivery_name, courier_src_id, courier_full_name, insert_dt, update_dt)
+        VALUES (
+            nextval('bl_dm.dim_orders_surr_id_seq'),
+            order_rec.order_src_id, 
+            order_rec.source_system, 
+            order_rec.source_entity, 
+            order_rec.order_name, 
+            order_rec.employee_src_id, 
+            order_rec.employee_full_name, 
+            order_rec.order_type, 
+            order_rec.offline_order_type, 
+            order_rec.delivery_src_id, 
+            order_rec.delivery_name, 
+            order_rec.courier_src_id, 
+            order_rec.courier_full_name, 
+            order_rec.insert_dt, 
+            order_rec.update_dt
+        );
+
+	rows_aff := rows_aff + 1;
+
+    END LOOP;
+
+    CLOSE row_cursor;
+
+    SELECT count(*) INTO count_after FROM bl_dm.dim_orders;
+
+    rows_inserted := count_after - count_before;
+    rows_updated := rows_aff - rows_inserted;
+    username := current_user;
+    table_name := 'bl_dm.dim_orders';
+    procedure_name := 'bl_cl.dim_orders_procedure';
+    procedure_starttime := current_timestamp::text;
+
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE PROCEDURE bl_cl.dim_times_procedure(
+    OUT username name,
+    OUT table_name text,
+    OUT procedure_name text,
+    OUT rows_updated int,
+    OUT rows_inserted int,
+    OUT procedure_starttime text
+) AS $$
+DECLARE 
+    count_before INT;
+    count_after INT;
+    rows_aff INT;
+BEGIN 
+
+    SELECT count(*) INTO count_before FROM bl_dm.dim_times;
+
+	INSERT INTO bl_dm.dim_times (
+		time_id,
+		time_hourofday,
+		time_quarterhour,
+		time_minuteofday,
+		time_daytimename,
+		time_daynightname
+	)
+	select to_char(minute, 'hh24:mi') AS TimeOfDay,
+		-- Hour of the day (0 - 23)
+		extract(hour from minute) as Hour, 
+		-- Extract and format quarter hours
+		to_char(minute - (extract(minute from minute)::integer % 15 || 'minutes')::interval, 'hh24:mi') ||
+		' – ' ||
+		to_char(minute - (extract(minute from minute)::integer % 15 || 'minutes')::interval + '14 minutes'::interval, 'hh24:mi')
+			as QuarterHour,
+		-- Minute of the day (0 - 1439)
+		extract(hour from minute)*60 + extract(minute from minute) as minute,
+		-- Names of day periods
+		case when to_char(minute, 'hh24:mi') between '06:00' and '08:29'
+			then 'Morning'
+		     when to_char(minute, 'hh24:mi') between '08:30' and '11:59'
+			then 'AM'
+		     when to_char(minute, 'hh24:mi') between '12:00' and '17:59'
+			then 'PM'
+		     when to_char(minute, 'hh24:mi') between '18:00' and '22:29'
+			then 'Evening'
+		     else 'Night'
+		end as DaytimeName,
+		-- Indicator of day or night
+		case when to_char(minute, 'hh24:mi') between '07:00' and '19:59' then 'Day'
+		     else 'Night'
+		end AS DayNight
+	from (SELECT '0:00'::time + (sequence.minute || ' minutes')::interval AS minute
+		FROM generate_series(0,1439) AS sequence(minute)
+		GROUP BY sequence.minute
+	     ) DQ
+	WHERE NOT EXISTS (
+	    SELECT 1 
+	    FROM bl_dm.dim_times 
+	    WHERE time_id = to_char(DQ.minute, 'hh24:mi')
+	)
+	order by 1;
+
+    GET DIAGNOSTICS rows_aff = ROW_COUNT;
+
+    SELECT count(*) INTO count_after FROM bl_dm.dim_times;
+
+    rows_inserted := count_after - count_before;
+    rows_updated := rows_aff - rows_inserted;
+    username := current_user;
+    table_name := 'bl_dm.dim_times';
+    procedure_name := 'bl_cl.dim_times_procedure';
+    procedure_starttime := current_timestamp::text;
+    
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE PROCEDURE bl_cl.dim_dates_procedure(
+    OUT username name,
+    OUT table_name text,
+    OUT procedure_name text,
+    OUT rows_updated int,
+    OUT rows_inserted int,
+    OUT procedure_starttime text
+) AS $$
+DECLARE 
+    count_before INT;
+    count_after INT;
+    rows_aff INT;
+BEGIN 
+
+    SELECT count(*) INTO count_before FROM bl_dm.dim_dates;
+
+	INSERT INTO bl_dm.dim_dates (
+		date_id,
+		date_year,
+		date_month,
+		date_monthname,
+		date_monthday,
+		date_yearday,
+		date_weekdayname,
+		date_calendarweek,
+		date_formatteddate,
+		date_quarter,
+		date_yearquarter,
+		date_yearmonth,
+		date_yearcalendarweek,
+		date_weekend,
+		date_georgianholiday,
+		date_period,
+		date_cwstart,
+		date_cwend,
+		date_monthstart,
+		date_monthend
+	)
+	SELECT
+		datum as Date,
+		extract(year from datum) AS Year,
+		extract(month from datum) AS Month,
+		-- Localized month name
+		to_char(datum, 'TMMonth') AS MonthName,
+		extract(day from datum) AS Day,
+		extract(doy from datum) AS DayOfYear,
+		-- Localized weekday
+		to_char(datum, 'TMDay') AS WeekdayName,
+		-- ISO calendar week
+		extract(week from datum) AS CalendarWeek,
+		to_char(datum, 'dd. mm. yyyy') AS FormattedDate,
+		'Q' || to_char(datum, 'Q') AS Quartal,
+		to_char(datum, 'yyyy/"Q"Q') AS YearQuartal,
+		to_char(datum, 'yyyy/mm') AS YearMonth,
+		-- ISO calendar year and week
+		to_char(datum, 'iyyy/IW') AS YearCalendarWeek,
+		-- Weekend
+		CASE WHEN extract(isodow from datum) in (6, 7) THEN 'Weekend' ELSE 'Weekday' END AS Weekend,
+		-- Fixed holidays 
+	        -- for Georgia
+	        CASE WHEN to_char(datum, 'MMDD') IN 
+	        ('0101', '0107', '0119', '0303', '0308', '0409', '0505', '0509', '0512', '0526', '0828', '1014', '1123')
+			THEN 'Holiday' ELSE 'No holiday' END
+			AS GeorgianHoliday,
+		-- Some periods of the year, adjust for your organisation and country
+		CASE WHEN to_char(datum, 'MMDD') BETWEEN '0601' AND '0831' THEN 'Summer season'
+		     WHEN to_char(datum, 'MMDD') BETWEEN '1215' AND '1225' THEN 'Christmas season'
+		     WHEN to_char(datum, 'MMDD') > '1225' OR to_char(datum, 'MMDD') <= '0106' THEN 'New Year Season'
+			ELSE 'Normal' END
+			AS Period,
+		-- ISO start and end of the week of this date
+		datum + (1 - extract(isodow from datum))::integer AS CWStart,
+		datum + (7 - extract(isodow from datum))::integer AS CWEnd,
+		-- Start and end of the month of this date
+		datum + (1 - extract(day from datum))::integer AS MonthStart,
+		(datum + (1 - extract(day from datum))::integer + '1 month'::interval)::date - '1 day'::interval AS MonthEnd
+	FROM (
+		SELECT '2021-01-01'::DATE + sequence.day AS datum
+		FROM generate_series(0,1825) AS sequence(day)
+		GROUP BY sequence.day
+	     ) DQ
+	WHERE NOT EXISTS (
+	    SELECT 1 
+	    FROM bl_dm.dim_dates 
+	    WHERE date_id = datum
+	)
+	order by 1;
+
+    GET DIAGNOSTICS rows_aff = ROW_COUNT;
+
+    SELECT count(*) INTO count_after FROM bl_dm.dim_dates;
+
+    rows_inserted := count_after - count_before;
+    rows_updated := rows_aff - rows_inserted;
+    username := current_user;
+    table_name := 'bl_dm.dim_dates';
+    procedure_name := 'bl_cl.dim_dates_procedure';
+    procedure_starttime := current_timestamp::text;
+    
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE bl_cl.fct_sales_procedure(
+    OUT username name,
+    OUT table_name text,
+    OUT procedure_name text,
+    OUT rows_updated int,
+    OUT rows_inserted int,
+    OUT procedure_starttime text
+) AS $$
+DECLARE 
+    count_before INT;
+    count_after INT;
+    rows_aff INT;
+BEGIN 
+    SELECT count(*) INTO count_before FROM bl_dm.fct_sales;
+
+    WITH init_table AS (
+        SELECT 
+            do2.order_surr_id,
+            cs.customer_surr_id,
+            dp.pizza_surr_id,
+            da.address_surr_id,
+            dd.date_id AS event_dt,
+            dt.time_id AS event_time,
+            1 AS quantity,
+            co.price,
+            current_timestamp AS insert_dt,
+            current_timestamp AS update_dt
+        FROM bl_3nf.ce_orders co
+        LEFT JOIN bl_dm.dim_orders do2 ON upper(do2.order_src_id) = upper(co.order_id::text)
+            AND upper(do2.source_system) = 'BL_3NF' AND upper(do2.source_entity) = 'CE_ORDERS'
+        LEFT JOIN bl_dm.dim_customers_scd cs ON upper(cs.customer_src_id) = upper(co.customer_id::text)
+            AND upper(cs.original_source) = upper(co.order_type::TEXT) AND upper(cs.is_active) = 'Y'
+            AND upper(cs.source_system) = 'BL_3NF' AND upper(cs.source_entity) = 'CE_CUSTOMERS_SCD'
+        LEFT JOIN bl_dm.dim_pizzas dp ON upper(dp.pizza_src_id) = upper(co.pizza_id::text)
+            AND upper(dp.source_system) = 'BL_3NF' AND upper(dp.source_entity) = 'CE_PIZZAS'
+        LEFT JOIN bl_dm.dim_addresses da ON upper(da.address_src_id) = upper(co.address_id::text)
+            AND upper(da.source_system) = 'BL_3NF' AND upper(da.source_entity) = 'CE_ADDRESSES'
+        LEFT JOIN bl_dm.dim_dates dd ON co.order_timestamp::date = dd.date_id
+        LEFT JOIN bl_dm.dim_times dt ON TO_CHAR(co.order_timestamp::time, 'HH24:MI') = dt.time_id
+        WHERE (co.order_timestamp > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES') AND co.order_type::TEXT = 'OFFLINE')
+            OR (co.order_timestamp > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES') AND co.order_type::TEXT = 'ONLINE')
+		LIMIT 20
+    ), added_fct_cost_order AS (
+        SELECT 
+            customer_surr_id, 
+            order_surr_id, 
+            pizza_surr_id, 
+            event_time, 
+            address_surr_id, 
+            event_dt, 
+            quantity, 
+            price, 
+            sum(price) OVER (PARTITION BY event_dt, event_time, customer_surr_id, address_surr_id) AS fct_cost_order,
+            insert_dt,
+            update_dt
+        FROM init_table
+    )
+    INSERT INTO bl_dm.fct_sales (
+        customer_surr_id,
+        order_surr_id,
+        pizza_surr_id,
+        event_time,
+        address_surr_id,
+        event_dt,
+        quantity,
+        price,
+        fct_cost_order,
+        insert_dt,
+        update_dt
+    )
+    SELECT     
+        customer_surr_id,
+        order_surr_id,
+        pizza_surr_id,
+        event_time,
+        address_surr_id,
+        event_dt,
+        quantity,
+        price,
+        fct_cost_order,
+        insert_dt,
+        update_dt
+    FROM added_fct_cost_order
+    ON CONFLICT (customer_surr_id, order_surr_id, pizza_surr_id, event_time, address_surr_id, event_dt) DO UPDATE
+    SET 
+        update_dt = EXCLUDED.update_dt;
+
+    GET DIAGNOSTICS rows_aff = ROW_COUNT;
+
+    SELECT count(*) INTO count_after FROM bl_dm.fct_sales;
+
+    rows_inserted := count_after - count_before;
+    rows_updated := rows_aff - rows_inserted;
+    username := current_user;
+    table_name := 'bl_dm.fct_sales';
+    procedure_name := 'bl_cl.fct_sales_procedure';
+    procedure_starttime := current_timestamp::text;
+    
+END;
+$$ LANGUAGE plpgsql;
+
+--SET ROLE postgres;
+--
+--TRUNCATE TABLE bl_cl.procedure_log ;
+
 CREATE OR REPLACE FUNCTION bl_cl.bl_3nf_procedures_to_log()
 RETURNS TABLE (
     username name,
@@ -1206,7 +2045,15 @@ DECLARE
         'bl_cl.ce_employees_procedure',
         'bl_cl.ce_pizzas_types_procedure',
         'bl_cl.ce_pizzas_sizes_procedure',
-        'bl_cl.ce_pizzas_procedure'
+        'bl_cl.ce_pizzas_procedure',
+        'bl_cl.ce_orders_procedure',
+		'bl_cl.dim_times_procedure',
+		'bl_cl.dim_dates_procedure',
+        'bl_cl.dim_addresses_procedure',
+        'bl_cl.dim_pizzas_procedure',
+        'bl_cl.dim_customers_scd_procedure',
+        'bl_cl.dim_orders_procedure',
+		'bl_cl.fct_sales_procedure'
     ];
 BEGIN
     v_status := 'Success';
@@ -1233,7 +2080,7 @@ BEGIN
         END;
     END LOOP;
 	
-	CALL bl_cl.upd_load_metadata();
+--	CALL bl_cl.upd_load_metadata();
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1251,6 +2098,3 @@ INSERT INTO bl_cl.procedure_log (
 SELECT * FROM bl_cl.bl_3nf_procedures_to_log();
 
 SELECT * FROM bl_cl.procedure_log;
-
---TRUNCATE bl_cl.procedure_log;
-

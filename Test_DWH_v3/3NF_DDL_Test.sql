@@ -77,6 +77,11 @@ CREATE SEQUENCE IF NOT EXISTS bl_3nf.ce_orders_id_seq
 	INCREMENT BY 1
 	CACHE 1;
 
+CREATE SEQUENCE IF NOT EXISTS bl_3nf.ce_sales_id_seq
+	START WITH 1
+	INCREMENT BY 1
+	CACHE 1;
+
 CREATE TABLE IF NOT EXISTS bl_3nf.ce_couriers(
 	courier_id bigint PRIMARY KEY,
 	courier_src_id varchar(255) NOT NULL,
@@ -193,8 +198,15 @@ CREATE TABLE IF NOT EXISTS bl_3nf.ce_orders(
 	source_entity varchar(255) NOT NULL,
 	order_timestamp timestamp NOT NULL,
 	order_type bl_3nf.type_order NOT NULL,
-	employee_id int NOT NULL,
 	offline_order_type bl_3nf.type_offline_order NOT NULL,
+	insert_dt timestamp NOT NULL,
+	update_dt timestamp NOT NULL,
+	CONSTRAINT order_unique UNIQUE (order_src_id, source_system, source_entity)
+);
+
+CREATE TABLE IF NOT EXISTS bl_3nf.ce_sales(
+	order_id int NOT NULL,
+	employee_id int NOT NULL,
 	delivery_id int NOT NULL,
 	customer_id int NOT NULL,
 	address_id int NOT NULL,
@@ -202,6 +214,7 @@ CREATE TABLE IF NOT EXISTS bl_3nf.ce_orders(
 	price decimal(6,2) NOT NULL,
 	insert_dt timestamp NOT NULL,
 	update_dt timestamp NOT NULL,
+--	CONSTRAINT sales_pk PRIMARY KEY (order_id, employee_id, delivery_id, customer_id, address_id, pizza_id),
 	CONSTRAINT order_pizza_fk FOREIGN KEY (pizza_id) REFERENCES bl_3nf.ce_pizzas(pizza_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 	CONSTRAINT order_employee_fk FOREIGN KEY (employee_id) REFERENCES bl_3nf.ce_employees(employee_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 	CONSTRAINT order_delivery_fk FOREIGN KEY (delivery_id) REFERENCES bl_3nf.ce_deliveries(delivery_id) ON UPDATE CASCADE ON DELETE RESTRICT,

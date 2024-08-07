@@ -376,7 +376,7 @@ CREATE TABLE IF NOT EXISTS bl_dm.fct_sales (
 	fct_cost_order decimal (10,2),
 	insert_dt timestamp NOT NULL,
 	update_dt timestamp NOT NULL,
-	CONSTRAINT fct_sales_pk PRIMARY KEY (customer_surr_id, order_surr_id, pizza_surr_id, event_time, address_surr_id, event_dt),
+--	CONSTRAINT fct_sales_pk PRIMARY KEY (customer_surr_id, order_surr_id, pizza_surr_id, event_time, address_surr_id, event_dt),
 	CONSTRAINT sale_customer_fk FOREIGN KEY (customer_surr_id) REFERENCES bl_dm.dim_customers_scd(customer_surr_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 	CONSTRAINT sale_order_fk FOREIGN KEY (order_surr_id) REFERENCES bl_dm.dim_orders(order_surr_id) ON UPDATE CASCADE ON DELETE RESTRICT,
 	CONSTRAINT event_date_fk FOREIGN KEY (event_dt) REFERENCES bl_dm.dim_dates(date_id) ON UPDATE CASCADE ON DELETE RESTRICT,
