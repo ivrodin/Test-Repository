@@ -71,6 +71,6 @@ CREATE TABLE IF NOT EXISTS bl_cl.procedure_log (
 CREATE TABLE IF NOT EXISTS bl_cl.load_metadata (
 	load_id int PRIMARY KEY,
 	src_tablename varchar (255),
-	load_dt timestamp,
-	last_src_dt varchar(255)
+	last_src_dt timestamp,
+	load_dt timestamp
 );

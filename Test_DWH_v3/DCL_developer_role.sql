@@ -38,7 +38,6 @@ GRANT USAGE, SELECT ON SEQUENCE bl_3nf.ce_pizzas_id_seq TO developer_role;
 GRANT USAGE, SELECT ON SEQUENCE bl_3nf.ce_orders_id_seq TO developer_role;
 
 
-
 GRANT USAGE ON SCHEMA bl_dm TO developer_role;
 GRANT CREATE ON SCHEMA bl_dm TO developer_role;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA bl_dm TO developer_role;
@@ -46,4 +45,3 @@ GRANT USAGE, SELECT ON SEQUENCE bl_dm.dim_orders_surr_id_seq TO developer_role;
 GRANT USAGE, SELECT ON SEQUENCE bl_dm.dim_addresses_surr_id_seq TO developer_role;
 GRANT USAGE, SELECT ON SEQUENCE bl_dm.dim_customers_scd_surr_id_seq TO developer_role;
 GRANT USAGE, SELECT ON SEQUENCE bl_dm.dim_pizzas_surr_id_seq TO developer_role;
-

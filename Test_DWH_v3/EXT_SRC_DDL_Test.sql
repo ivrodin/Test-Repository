@@ -11,7 +11,6 @@ CREATE SCHEMA IF NOT EXISTS sa_online_sales;
 CREATE SCHEMA IF NOT EXISTS sa_restaurant_sales;
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_1 (
-	record_id varchar(255),
 	customer_id varchar(255),
 	customer_full_name varchar(255),
 	order_id varchar(255),
@@ -25,12 +24,12 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_1 (
 	courier_id varchar(255),
 	courier_full_name varchar(255),
 	district varchar(255),
-	address varchar(255)
+	address varchar(255),
+	quantity varchar(255)
 ) SERVER csv_log
 OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_2 (
-	record_id varchar(255),
 	customer_id varchar(255),
 	customer_full_name varchar(255),
 	order_id varchar(255),
@@ -44,12 +43,12 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_2 (
 	courier_id varchar(255),
 	courier_full_name varchar(255),
 	district varchar(255),
-	address varchar(255)
+	address varchar(255),
+	quantity varchar(255)
 ) SERVER csv_log
 OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_2.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_1 (
-	record_id varchar(255),
 	customer_id varchar(255),
 	customer_full_name varchar(255),
 	order_id varchar(255),
@@ -60,12 +59,12 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_1 (
 	price varchar(255),
 	employee_id varchar(255),
 	employee_full_name varchar(255),
-	in_or_out varchar(255)
+	in_or_out varchar(255),
+	quantity varchar(255)
 ) SERVER csv_log
 OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_2 (
-	record_id varchar(255),
 	customer_id varchar(255),
 	customer_full_name varchar(255),
 	order_id varchar(255),
@@ -76,12 +75,12 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_2 (
 	price varchar(255),
 	employee_id varchar(255),
 	employee_full_name varchar(255),
-	in_or_out varchar(255)
+	in_or_out varchar(255),
+	quantity varchar(255)
 ) SERVER csv_log
 OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_2.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE TABLE IF NOT EXISTS sa_restaurant_sales.src_restaurant_sales (
-	record_id varchar(255),
 	customer_id varchar(255),
 	customer_full_name varchar(255),
 	order_id varchar(255),
@@ -92,11 +91,12 @@ CREATE TABLE IF NOT EXISTS sa_restaurant_sales.src_restaurant_sales (
 	price varchar(255),
 	employee_id varchar(255),
 	employee_full_name varchar(255),
-	in_or_out varchar(255)
+	in_or_out varchar(255),
+	quantity varchar(255),
+	load_timestamp timestamp
 );
 
 CREATE TABLE IF NOT EXISTS sa_online_sales.src_online_sales (
-	record_id varchar(255),
 	customer_id varchar(255),
 	customer_full_name varchar(255),
 	order_id varchar(255),
@@ -110,5 +110,7 @@ CREATE TABLE IF NOT EXISTS sa_online_sales.src_online_sales (
 	courier_id varchar(255),
 	courier_full_name varchar(255),
 	district varchar(255),
-	address varchar(255)
+	address varchar(255),
+	quantity varchar(255),
+	load_timestamp timestamp
 );

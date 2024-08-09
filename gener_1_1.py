@@ -377,11 +377,12 @@ for order_id in order_ids:
 
         record_counter += 1
 
-    if record_counter > 500500:
+    if record_counter > 600000:
         break
 
     order_counter += 1
 
+print(data)
 # Create a new DataFrame
 new_data = pd.DataFrame(data)
 
