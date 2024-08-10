@@ -9,6 +9,7 @@ GRANT USAGE ON SCHEMA sa_online_sales TO developer_role;
 GRANT CREATE ON SCHEMA sa_online_sales TO developer_role;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA sa_online_sales TO developer_role;
 
+ALTER TABLE bl_dm.fct_sales OWNER TO developer_role;
 
 GRANT USAGE ON SCHEMA sa_restaurant_sales TO developer_role;
 GRANT CREATE ON SCHEMA sa_restaurant_sales TO developer_role;

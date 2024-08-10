@@ -75,6 +75,35 @@ CREATE TABLE IF NOT EXISTS bl_dm.dim_orders (
 	update_dt timestamp NOT NULL
 );
 
+-- Creating comosite type for cursor instead of RECORD
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_type t
+        JOIN pg_namespace n ON n.oid = t.typnamespace
+        WHERE t.typname = 'order_record_type'
+        AND n.nspname = 'bl_dm'
+    ) THEN
+        CREATE TYPE bl_dm.order_record_type AS (
+            order_src_id text,
+            source_system text,
+            source_entity text,
+            order_name text,
+            employee_src_id int,
+            employee_full_name text,
+            order_type text,
+            offline_order_type text,
+            delivery_src_id int,
+            delivery_name text,
+            courier_src_id int,
+            courier_full_name text,
+            insert_dt timestamp,
+            update_dt timestamp
+        );
+    END IF;
+END $$;
+
 CREATE INDEX dim_orders_ind ON bl_dm.dim_orders (upper(order_src_id), upper(source_system), upper(source_entity));
 
 CREATE TABLE IF NOT EXISTS bl_dm.dim_addresses (
@@ -141,51 +170,4 @@ CREATE TABLE IF NOT EXISTS bl_dm.fct_sales (
 
 CREATE TABLE IF NOT EXISTS bl_dm.fct_sales_default PARTITION OF bl_dm.fct_sales FOR VALUES FROM ('1899-12-31'::date) TO ('1900-01-02'::date);
 
---Generating partitions from 2022 till 2025 by 3 month interval
-DO $$
-DECLARE
-    start_date DATE := DATE '2022-01-01';
-    end_date DATE;
-    partition_name TEXT;
-BEGIN
-    WHILE start_date < DATE '2026-01-01' LOOP
-        end_date := start_date + INTERVAL '3 month';
-        partition_name := 'bl_dm.fct_sales_from_' || TO_CHAR(start_date, 'YYYY_MM') || '_till_' || TO_CHAR(end_date, 'YYYY_MM');
-
-        EXECUTE format(
-            'CREATE TABLE IF NOT EXISTS %I PARTITION OF bl_dm.fct_sales FOR VALUES FROM (%L) TO (%L)',
-            partition_name,
-            start_date,
-            end_date
-        );
-
-        start_date := end_date;
-    END LOOP;
-END $$;
-
---CREATE INDEX ce_orders_ind ON bl_3nf.ce_orders (upper(order_src_id), order_type, upper(source_system), upper(source_entity));
---CREATE INDEX dim_orders_ind ON bl_dm.dim_orders (upper(order_src_id), upper(source_system), upper(source_entity));
---CREATE INDEX dim_addresses_ind ON bl_dm.dim_addresses (upper(address_src_id), upper(source_system), upper(source_entity));
---CREATE INDEX dim_customers_ind ON bl_dm.dim_customers_scd (upper(customer_src_id), upper(original_source), upper(source_system), upper(source_entity), upper(is_active));
---CREATE INDEX dim_pizzas_ind ON bl_dm.dim_pizzas (upper(pizza_src_id), upper(source_system), upper(source_entity));
---
---CREATE INDEX ce_sales_ind ON bl_3nf.ce_sales (order_id, employee_id, delivery_id, customer_id, address_id, pizza_id) ;
---CREATE INDEX ce_orders_ind ON bl_3nf.ce_orders (order_src_id, order_type, source_system, source_entity);
---CREATE INDEX dim_orders_ind ON bl_dm.dim_orders (order_src_id, source_system, source_entity);
---CREATE INDEX dim_addresses_ind ON bl_dm.dim_addresses (address_src_id, source_system, source_entity);
---CREATE INDEX dim_customers_ind ON bl_dm.dim_customers_scd (customer_src_id, original_source, source_system, source_entity);
---CREATE INDEX dim_pizzas_ind ON bl_dm.dim_pizzas (pizza_src_id, source_system, source_entity);
---
---CREATE INDEX ce_orders_ind ON bl_3nf.ce_orders (order_src_id);
---CREATE INDEX dim_orders_ind ON bl_dm.dim_orders (order_src_id);
---CREATE INDEX dim_addresses_ind ON bl_dm.dim_addresses (address_src_id);
---CREATE INDEX dim_customers_ind ON bl_dm.dim_customers_scd (customer_src_id);
---CREATE INDEX dim_pizzas_ind ON bl_dm.dim_pizzas (pizza_src_id);
---
---
---DROP INDEX bl_3nf.ce_orders_ind;
---DROP INDEX bl_dm.dim_orders_ind;
---DROP INDEX bl_dm.dim_addresses_ind;
---DROP INDEX bl_dm.dim_customers_ind;
---DROP INDEX bl_dm.dim_pizzas_ind;
---DROP INDEX bl_3nf.ce_sales_ind;
+CREATE TABLE IF NOT EXISTS bl_dm.fct_sales_archived PARTITION OF bl_dm.fct_sales FOR VALUES FROM ('1900-01-02'::date) TO ('2022-01-01'::date);

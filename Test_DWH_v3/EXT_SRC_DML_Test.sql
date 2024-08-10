@@ -39,18 +39,18 @@ WHERE NOT EXISTS (
 	FROM 
 		sa_restaurant_sales.src_restaurant_sales s 
 	WHERE 
-		s.customer_id = e.customer_id AND
-		s.customer_full_name = e.customer_full_name AND
-		s.order_id = e.order_id AND
-		s."timestamp"= e."timestamp" AND
-		s.pizza_type = e.pizza_type AND
-		s.pizza_name = e.pizza_name AND
-		s."size" = e."size" AND
-		s.price = e.price AND
-		s.employee_id = s.employee_id AND
-		s.employee_full_name = s.employee_full_name AND
-		s.in_or_out = e.in_or_out AND 
-		s.quantity = e.quantity
+		COALESCE (s.customer_id, 'N.A.') = COALESCE (e.customer_id, 'N.A.') AND
+		COALESCE (s.customer_full_name, 'N.A.') =  COALESCE (e.customer_full_name, 'N.A.') AND
+		COALESCE (s.order_id, 'N.A.') = COALESCE (e.order_id, 'N.A.') AND
+		COALESCE (s."timestamp", 'N.A.') = COALESCE (e."timestamp", 'N.A.') AND
+		COALESCE (s.pizza_type, 'N.A.') = COALESCE (e.pizza_type, 'N.A.') AND
+		COALESCE (s.pizza_name, 'N.A.') = COALESCE (e.pizza_name, 'N.A.') AND
+		COALESCE (s."size", 'N.A.') = COALESCE (e."size", 'N.A.') AND
+		COALESCE (s.price, 'N.A.') = COALESCE (e.price, 'N.A.') AND
+		COALESCE (s.employee_id, 'N.A.') = COALESCE (s.employee_id, 'N.A.') AND
+		COALESCE (s.employee_full_name, 'N.A.') = COALESCE (s.employee_full_name, 'N.A.') AND
+		COALESCE (s.in_or_out, 'N.A.') = COALESCE (e.in_or_out, 'N.A.') AND 
+		COALESCE (s.quantity, 'N.A.') = COALESCE (e.quantity, 'N.A.')
 );
 
 COMMIT;
@@ -98,21 +98,21 @@ WHERE NOT EXISTS (
 	FROM 
 		sa_online_sales.src_online_sales s 
 	WHERE 
-		s.customer_id = e.customer_id AND
-		s.customer_full_name = e.customer_full_name AND
-		s.order_id = e.order_id AND
-		s."timestamp" = e."timestamp" AND
-		s.pizza_type = e.pizza_type AND
-		s.pizza_name = e.pizza_name AND
-		s."size" = e."size" AND
-		s.price = e.price AND
-		s.delivery_id = e.delivery_id AND
-		s.delivery_name = e.delivery_name AND
-		s.courier_id = s.courier_id AND
-		s.courier_full_name = s.courier_full_name AND
-		s.district = e.district AND
-		s.address = e.address AND 
-		s.quantity = e.quantity
+		COALESCE (s.customer_id, 'N.A.') = COALESCE (e.customer_id, 'N.A.') AND
+		COALESCE (s.customer_full_name, 'N.A.') = COALESCE (e.customer_full_name, 'N.A.') AND
+		COALESCE (s.order_id, 'N.A.') = COALESCE (e.order_id, 'N.A.') AND
+		COALESCE (s."timestamp", 'N.A.') = COALESCE (e."timestamp", 'N.A.') AND
+		COALESCE (s.pizza_type, 'N.A.') = COALESCE (e.pizza_type, 'N.A.') AND
+		COALESCE (s.pizza_name, 'N.A.') = COALESCE (e.pizza_name, 'N.A.') AND
+		COALESCE (s."size", 'N.A.') = COALESCE (e."size", 'N.A.') AND
+		COALESCE (s.price, 'N.A.') = COALESCE (e.price, 'N.A.') AND
+		COALESCE (s.delivery_id, 'N.A.') = COALESCE (e.delivery_id, 'N.A.') AND
+		COALESCE (s.delivery_name, 'N.A.') = COALESCE (e.delivery_name, 'N.A.') AND
+		COALESCE (s.courier_id, 'N.A.') = COALESCE (s.courier_id, 'N.A.') AND
+		COALESCE (s.courier_full_name, 'N.A.') = COALESCE (s.courier_full_name, 'N.A.') AND
+		COALESCE (s.district, 'N.A.') = COALESCE (e.district, 'N.A.') AND
+		COALESCE (s.address, 'N.A.') = COALESCE (e.address, 'N.A.') AND 
+		COALESCE (s.quantity, 'N.A.') = COALESCE (e.quantity, 'N.A.')
 );
 
 COMMIT;

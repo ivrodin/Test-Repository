@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS bl_cl.procedure_log (
 	procedure_name varchar(255),
 	rows_updated int,
 	rows_inserted int,
-	procesure_starttime varchar(50),
+	procedure_timestamp varchar(50),
 	status varchar(255)
 );
 
