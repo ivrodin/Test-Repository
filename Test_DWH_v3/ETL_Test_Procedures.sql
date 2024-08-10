@@ -60,7 +60,7 @@ BEGIN
 		quantity,
 		current_timestamp 
 	FROM 
-		sa_online_sales.ext_online_sales_1 e
+		sa_online_sales.ext_online_sales_2 e
 	WHERE NOT EXISTS (
 		SELECT 
 			1 
@@ -153,7 +153,7 @@ BEGIN
 		e.quantity,
 		current_timestamp 
 	FROM 
-		sa_restaurant_sales.ext_restaurant_sales_1 e
+		sa_restaurant_sales.ext_restaurant_sales_2 e
 	WHERE NOT EXISTS (
 		SELECT 
 			1 
@@ -235,10 +235,10 @@ BEGIN
 	SELECT max(max_dt) INTO max_date_src FROM unified_dates;
 
     SELECT
-        (regexp_replace(
+        COALESCE((regexp_replace(
             pg_get_expr(c.relpartbound, c.oid), 
             'FOR VALUES FROM \((.*)\) TO \((.*)\)', 
-            '\2')::date)
+            '\2')::date), '1900-01-01'::date)
 		INTO last_partition_end_date
     FROM
         pg_class c
@@ -264,7 +264,7 @@ BEGIN
 
     SELECT count(*) INTO rows_after FROM pg_class WHERE relname ~ '^fct_sales_from_'; 
 
-	rows_inserted := rows_after - rows_before;
+	rows_inserted := (rows_after - rows_before)/2;
 
 
 EXCEPTION
@@ -1365,7 +1365,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1448,7 +1448,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1628,7 +1628,7 @@ EXCEPTION
         rows_inserted := 0;
 
 
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1708,7 +1708,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1791,7 +1791,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1871,7 +1871,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -1951,7 +1951,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -2031,7 +2031,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -2126,7 +2126,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -2239,7 +2239,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
 
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -2489,7 +2489,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -2601,7 +2601,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -2675,7 +2675,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -2753,7 +2753,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
     
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -2872,7 +2872,7 @@ EXCEPTION
         rows_updated := 0;
         rows_inserted := 0;
 
-	COMMIT;
+--	COMMIT;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -2892,18 +2892,18 @@ DECLARE
     order_rec bl_dm.order_record_type;
     row_cursor CURSOR FOR
         SELECT DISTINCT
-            co.order_id AS order_src_id,
+            COALESCE(co.order_id, -1) AS order_src_id,
             'BL_3NF' AS source_system,
             'CE_ORDERS' AS source_entity,
-            order_src_id AS order_name,
-            cs.employee_id AS employee_src_id,
-            ce.employee_full_name AS employee_full_name,
+            COALESCE(order_src_id, 'N.A.') AS order_name,
+            COALESCE(cs.employee_id, -1) AS employee_src_id,
+            COALESCE(ce.employee_full_name, 'N.A.') AS employee_full_name,
             order_type AS order_type,
             offline_order_type AS offline_order_type,
-            cs.delivery_id AS delivery_src_id,
-            cd.delivery_name AS delivery_name,
-            cd.courier_id AS courier_src_id,
-            cc.courier_full_name AS courier_full_name,
+            COALESCE(cs.delivery_id, -1) AS delivery_src_id,
+            COALESCE(cd.delivery_name, 'N.A.') AS delivery_name,
+            COALESCE(cd.courier_id, -1) AS courier_src_id,
+            COALESCE(cc.courier_full_name, 'N.A.') AS courier_full_name,
             current_timestamp AS insert_dt,
             current_timestamp AS update_dt
         FROM bl_3nf.ce_orders co
