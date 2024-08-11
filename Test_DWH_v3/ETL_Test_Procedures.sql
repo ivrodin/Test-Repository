@@ -60,7 +60,7 @@ BEGIN
 		quantity,
 		current_timestamp 
 	FROM 
-		sa_online_sales.ext_online_sales_2 e
+		sa_online_sales.ext_online_sales_9 e
 	WHERE NOT EXISTS (
 		SELECT 
 			1 
@@ -153,7 +153,7 @@ BEGIN
 		e.quantity,
 		current_timestamp 
 	FROM 
-		sa_restaurant_sales.ext_restaurant_sales_2 e
+		sa_restaurant_sales.ext_restaurant_sales_9 e
 	WHERE NOT EXISTS (
 		SELECT 
 			1 
@@ -238,7 +238,7 @@ BEGIN
         COALESCE((regexp_replace(
             pg_get_expr(c.relpartbound, c.oid), 
             'FOR VALUES FROM \((.*)\) TO \((.*)\)', 
-            '\2')::date), '1900-01-01'::date)
+            '\2')::date), '2022-01-01'::date)
 		INTO last_partition_end_date
     FROM
         pg_class c
@@ -928,10 +928,10 @@ BEGIN
             WHERE NOT EXISTS (
                 SELECT 1 
                 FROM bl_cl.lkp_pizzas_sizes t
-                WHERE UPPER(s."size") = UPPER(t.pizza_size_src_id)
+                WHERE COALESCE(UPPER(s."size"), 'N.A.') = UPPER(t.pizza_size_src_id)
                 	AND UPPER(t.source_system) = 'SA_ONLINE_SALES'
                 	AND UPPER(t.source_entity) = 'SRC_ONLINE_SALES'
-					AND UPPER(s."size") = UPPER(t.pizza_size_name)
+					AND COALESCE(UPPER(s."size"), 'N.A.') = UPPER(t.pizza_size_name)
             ) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
 	)
 	INSERT INTO bl_cl.lkp_pizzas_sizes (
@@ -975,10 +975,10 @@ BEGIN
             WHERE NOT EXISTS (
                 SELECT 1 
                 FROM bl_cl.lkp_pizzas_sizes t
-                WHERE UPPER(s."size") = UPPER(t.pizza_size_src_id)
+                WHERE COALESCE(UPPER(s."size"), 'N.A.') = UPPER(t.pizza_size_src_id)
                 	AND UPPER(t.source_system) = 'SA_RESTAURANT_SALES'
                 	AND UPPER(t.source_entity) = 'SRC_RESTAURANT_SALES'
-					AND UPPER(s."size") = UPPER(t.pizza_size_name)
+					AND COALESCE(UPPER(s."size"), 'N.A.') = UPPER(t.pizza_size_name)
             ) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
 	) 
     INSERT INTO bl_cl.lkp_pizzas_sizes (
@@ -1061,10 +1061,10 @@ BEGIN
             WHERE NOT EXISTS (
                 SELECT 1 
                 FROM bl_cl.lkp_pizzas_types t
-                WHERE UPPER(s.pizza_type) = UPPER(t.pizza_type_src_id)
+                WHERE COALESCE(UPPER(s.pizza_type), 'N.A.') = UPPER(t.pizza_type_src_id)
                 	AND UPPER(t.source_system) = 'SA_ONLINE_SALES'
                 	AND UPPER(t.source_entity) = 'SRC_ONLINE_SALES'
-					AND UPPER(s.pizza_type) = UPPER(t.pizza_type_name)
+					AND COALESCE(UPPER(s.pizza_type), 'N.A.') = UPPER(t.pizza_type_name)
             ) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
 	)
     INSERT INTO bl_cl.lkp_pizzas_types (
@@ -1108,10 +1108,10 @@ BEGIN
             WHERE NOT EXISTS (
                 SELECT 1 
                 FROM bl_cl.lkp_pizzas_types t
-                WHERE UPPER(s.pizza_type) = UPPER(t.pizza_type_src_id)
+                WHERE COALESCE(UPPER(s.pizza_type), 'N.A.') = UPPER(t.pizza_type_src_id)
                 	AND UPPER(t.source_system) = 'SA_RESTAURANT_SALES'
                 	AND UPPER(t.source_entity) = 'SRC_RESTAURANT_SALES'
-					AND UPPER(s.pizza_type) = UPPER(t.pizza_type_name)
+					AND COALESCE(UPPER(s.pizza_type), 'N.A.') = UPPER(t.pizza_type_name)
             ) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
 	)
     INSERT INTO bl_cl.lkp_pizzas_types (
@@ -1183,7 +1183,7 @@ BEGIN
 
 	WITH init_src AS (
 		SELECT DISTINCT 
-		    COALESCE(UPPER(s.pizza_name || '_' || s.pizza_type || '_' || s."size"), 'N.A.') AS pizza_src_id,
+		    UPPER(COALESCE(s.pizza_name, 'N.A.') || '_' || COALESCE(s.pizza_type, 'N.A.') || '_' || COALESCE(s."size", 'N.A.')) AS pizza_src_id,
 		    'SA_ONLINE_SALES' AS source_system,
 		    'SRC_ONLINE_SALES' AS source_entity,
 		    CURRENT_TIMESTAMP AS insert_dt,
@@ -1193,7 +1193,7 @@ BEGIN
 		WHERE NOT EXISTS (
 		    SELECT 1 
 		    FROM bl_cl.lkp_pizzas t
-		    WHERE UPPER(s.pizza_name || '_' || s.pizza_type || '_' || s."size") = UPPER(t.pizza_src_id)
+		    WHERE UPPER(COALESCE(s.pizza_name, 'N.A.') || '_' || COALESCE(s.pizza_type, 'N.A.') || '_' || COALESCE(s."size", 'N.A.')) = UPPER(t.pizza_src_id)
 		    	AND UPPER(t.source_system) = 'SA_ONLINE_SALES'
 		    	AND UPPER(t.source_entity) = 'SRC_ONLINE_SALES'
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
@@ -1226,7 +1226,7 @@ BEGIN
 
 	WITH init_src AS (
 		SELECT DISTINCT
-		    COALESCE(UPPER(s.pizza_name || '_' || s.pizza_type || '_' || s."size"), 'N.A.') AS pizza_src_id,
+		    UPPER(COALESCE(s.pizza_name, 'N.A.') || '_' || COALESCE(s.pizza_type, 'N.A.') || '_' || COALESCE(s."size", 'N.A.')) AS pizza_src_id,
 		    'SA_RESTAURANT_SALES' AS source_system,
 		    'SRC_RESTAURANT_SALES' AS source_entity,
 		    CURRENT_TIMESTAMP AS insert_dt,
@@ -1236,7 +1236,7 @@ BEGIN
 		WHERE NOT EXISTS (
 		    SELECT 1 
 		    FROM bl_cl.lkp_pizzas t
-		    WHERE UPPER(s.pizza_name || '_' || s.pizza_type || '_' || s."size") = UPPER(t.pizza_src_id)
+		    WHERE UPPER(COALESCE(s.pizza_name, 'N.A.') || '_' || COALESCE(s.pizza_type, 'N.A.') || '_' || COALESCE(s."size", 'N.A.')) = UPPER(t.pizza_src_id)
 		    	AND UPPER(t.source_system) = 'SA_RESTAURANT_SALES'
 		    	AND UPPER(t.source_entity) = 'SRC_RESTAURANT_SALES'
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
@@ -1319,7 +1319,7 @@ BEGIN
             sa_online_sales.src_online_sales s
         WHERE NOT EXISTS (
 			SELECT 1 FROM bl_3nf.ce_couriers t 
-			WHERE upper(s.courier_id) = upper(t.courier_src_id) AND 
+			WHERE COALESCE(upper(s.courier_id), 'N.A.') = upper(t.courier_src_id) AND 
 				upper(t.source_system) = 'SA_ONLINE_SALES' AND 
 				upper(t.source_entity) = 'SRC_ONLINE_SALES' AND 
 				upper(s.courier_full_name) = upper(t.courier_full_name)
@@ -1398,17 +1398,24 @@ BEGIN
 			'SA_ONLINE_SALES' AS source_system,
 			'SRC_ONLINE_SALES' AS source_entity,
 			COALESCE (upper(s.delivery_name), 'N.A.') AS delivery_name,
-			COALESCE ((SELECT courier_id FROM bl_3nf.ce_couriers e WHERE upper(s.courier_id) = upper(e.courier_src_id)), -1) AS courier_id,
+			COALESCE ((
+				SELECT courier_id FROM bl_3nf.ce_couriers e 
+				WHERE COALESCE(upper(s.courier_id), 'N.A.') = upper(e.courier_src_id) AND
+					upper(e.source_system) = 'SA_ONLINE_SALES' AND 
+					upper(e.source_entity) = 'SRC_ONLINE_SALES'
+			), -1) AS courier_id,
 			current_timestamp AS insert_dt,
 			current_timestamp AS update_dt
 		FROM 
 			sa_online_sales.src_online_sales s
 		WHERE NOT EXISTS (
 			SELECT 1 FROM bl_3nf.ce_deliveries t 
-			WHERE upper(s.delivery_id) = upper(t.delivery_src_id) AND 
+			LEFT JOIN bl_3nf.ce_couriers e ON t.courier_id = e.courier_id
+			WHERE COALESCE(upper(s.delivery_id), 'N.A.') = upper(t.delivery_src_id) AND 
 				upper(t.source_system) = 'SA_ONLINE_SALES' AND 
 				upper(t.source_entity) = 'SRC_ONLINE_SALES' AND
-				upper(s.delivery_name) = upper(t.delivery_name)
+				COALESCE(upper(s.delivery_name), 'N.A.') = upper(t.delivery_name) AND
+				COALESCE(upper(s.courier_id), 'N.A.') = upper(e.courier_src_id)
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
 	)
 	INSERT INTO bl_3nf.ce_deliveries (
@@ -1489,10 +1496,10 @@ BEGIN
         FROM sa_online_sales.src_online_sales s
 		WHERE NOT EXISTS (
             SELECT 1 FROM bl_3nf.ce_customers_scd t 
-            WHERE upper(s.customer_id) = upper(t.customer_src_id) AND 
+            WHERE  COALESCE (s.customer_id, 'N.A.') = upper(t.customer_src_id) AND 
                 upper(t.source_system) = 'SA_ONLINE_SALES' AND 
                 upper(t.source_entity) = 'SRC_ONLINE_SALES' AND
-				upper(s.customer_full_name) = upper(t.customer_full_name)
+				COALESCE (upper(s.customer_full_name), 'N.A.') = upper(t.customer_full_name)
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
 	)
 	UPDATE bl_3nf.ce_customers_scd t
@@ -1520,10 +1527,10 @@ BEGIN
         FROM sa_online_sales.src_online_sales s
 		WHERE NOT EXISTS (
             SELECT 1 FROM bl_3nf.ce_customers_scd t 
-            WHERE upper(s.customer_id) = upper(t.customer_src_id) AND 
+            WHERE COALESCE (s.customer_id, 'N.A.') = upper(t.customer_src_id) AND 
                 upper(t.source_system) = 'SA_ONLINE_SALES' AND 
-                upper(t.source_entity) = 'SRC_ONLINE_SALES' AND
-				upper(s.customer_full_name) = upper(t.customer_full_name)
+                upper(t.source_entity) = 'SRC_ONLINE_SALES' AND 
+				COALESCE (upper(s.customer_full_name), 'N.A.') = upper(t.customer_full_name)
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
 	)
 	INSERT INTO bl_3nf.ce_customers_scd (customer_id, customer_src_id, source_system, source_entity, customer_full_name, is_active, start_dt, end_dt, insert_dt)
@@ -1558,10 +1565,10 @@ BEGIN
         FROM sa_restaurant_sales.src_restaurant_sales s
 		WHERE NOT EXISTS (
             SELECT 1 FROM bl_3nf.ce_customers_scd t 
-            WHERE upper(s.customer_id) = upper(t.customer_src_id) AND 
+            WHERE COALESCE (s.customer_id, 'N.A.')  = upper(t.customer_src_id) AND 
                 upper(t.source_system) = 'SA_RESTAURANT_SALES' AND 
                 upper(t.source_entity) = 'SRC_RESTAURANT_SALES' AND
-				upper(s.customer_full_name) = upper(t.customer_full_name)
+				COALESCE (upper(s.customer_full_name), 'N.A.') = upper(t.customer_full_name)
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
 	)
 	UPDATE bl_3nf.ce_customers_scd t
@@ -1589,10 +1596,10 @@ BEGIN
         FROM sa_restaurant_sales.src_restaurant_sales s
 		WHERE NOT EXISTS (
             SELECT 1 FROM bl_3nf.ce_customers_scd t 
-            WHERE upper(s.customer_id) = upper(t.customer_src_id) AND 
+            WHERE COALESCE (s.customer_id, 'N.A.') = upper(t.customer_src_id) AND 
                 upper(t.source_system) = 'SA_RESTAURANT_SALES' AND 
                 upper(t.source_entity) = 'SRC_RESTAURANT_SALES' AND
-				upper(s.customer_full_name) = upper(t.customer_full_name)
+				COALESCE (upper(s.customer_full_name), 'N.A.') = upper(t.customer_full_name)
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
 	)
 	INSERT INTO bl_3nf.ce_customers_scd (customer_id, customer_src_id, source_system, source_entity, customer_full_name, is_active, start_dt, end_dt, insert_dt)
@@ -1667,10 +1674,10 @@ BEGIN
 			sa_online_sales.src_online_sales s
 		WHERE NOT EXISTS (
 			SELECT 1 FROM bl_3nf.ce_districts t 
-			WHERE upper(s.district) = upper(t.district_src_id) AND 
+			WHERE COALESCE (upper(s.district), 'N.A.') = upper(t.district_src_id) AND 
 				upper(t.source_system) = 'SA_ONLINE_SALES' AND
 				upper(t.source_entity) = 'SRC_ONLINE_SALES' AND
-				upper(s.district) = upper(t.district_name)
+				COALESCE (upper(s.district), 'N.A.') = upper(t.district_name)
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
 	)
 	INSERT INTO bl_3nf.ce_districts (
@@ -1741,17 +1748,22 @@ BEGIN
 			'SA_ONLINE_SALES' AS source_system,
 			'SRC_ONLINE_SALES' AS source_entity,
 			COALESCE (upper(s.address), 'N.A.') AS address_name,
-			COALESCE ((SELECT district_id FROM bl_3nf.ce_districts e WHERE upper(s.district) = upper(e.district_src_id)), -1) AS district_id,
+			COALESCE ((
+				SELECT district_id FROM bl_3nf.ce_districts e 
+				WHERE COALESCE(upper(s.district), 'N.A.') = upper(e.district_src_id) AND
+					upper(e.source_system) = 'SA_ONLINE_SALES' AND 
+					upper(e.source_entity) = 'SRC_ONLINE_SALES'
+			), -1) AS district_id,
 			current_timestamp AS insert_dt,
 			current_timestamp AS update_dt
 		FROM 
 			sa_online_sales.src_online_sales s
 		WHERE NOT EXISTS (
 			SELECT 1 FROM bl_3nf.ce_addresses t 
-			WHERE upper(s.address) = upper(t.address_src_id) AND 
+			WHERE COALESCE(upper(s.address), 'N.A.') = upper(t.address_src_id) AND 
 				upper(t.source_system) = 'SA_ONLINE_SALES' AND 
 				upper(t.source_entity) = 'SRC_ONLINE_SALES' AND
-				upper(s.address) = upper(t.address_name)
+				COALESCE(upper(s.address), 'N.A.') = upper(t.address_name)
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
 	)
 	INSERT INTO bl_3nf.ce_addresses (
@@ -1807,7 +1819,31 @@ CREATE OR REPLACE PROCEDURE bl_cl.ce_employees_procedure(
 DECLARE 
     count_before INT;
     count_after INT;
-    rows_aff INT;
+--    rows_aff INT;
+    rows_aff INT := 0;
+
+    rec RECORD;
+    cur CURSOR FOR
+        WITH initial_table AS (
+            SELECT DISTINCT ON (COALESCE (upper(s.employee_id), 'N.A.'), COALESCE (upper(s.employee_full_name), 'N.A.'))
+                COALESCE (upper(s.employee_id), 'N.A.') AS employee_src_id,
+                'SA_RESTAURANT_SALES' AS source_system,
+                'SRC_RESTAURANT_SALES' AS source_entity,
+                COALESCE (upper(s.employee_full_name), 'N.A.') AS employee_full_name,
+                current_timestamp AS insert_dt,
+                current_timestamp AS update_dt
+            FROM 
+                sa_restaurant_sales.src_restaurant_sales s
+            WHERE NOT EXISTS (
+                SELECT 1 FROM bl_3nf.ce_employees t 
+                WHERE upper(s.employee_id) = upper(t.employee_src_id) AND 
+				upper(t.source_system) = 'SA_RESTAURANT_SALES' AND 
+				upper(t.source_entity) = 'SRC_RESTAURANT_SALES' AND
+                    upper(s.employee_full_name) = upper(t.employee_full_name)
+            ) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
+            ORDER BY COALESCE (upper(s.employee_id), 'N.A.'),COALESCE (upper(s.employee_full_name), 'N.A.') DESC
+        )
+        SELECT * FROM initial_table;
 BEGIN 
 
     username := current_user;
@@ -1818,47 +1854,88 @@ BEGIN
 
     SELECT count(*) INTO count_before FROM bl_3nf.ce_employees;
 
-	WITH initial_table AS (
-		SELECT DISTINCT
-			COALESCE (upper(s.employee_id), 'N.A.') AS employee_src_id,
-			'SA_RESTAURANT_SALES' AS source_system,
-			'SRC_RESTAURANT_SALES' AS source_entity,
-			COALESCE (upper(s.employee_full_name), 'N.A.') AS employee_full_name,
-			current_timestamp AS insert_dt,
-			current_timestamp AS update_dt
-		FROM 
-			sa_restaurant_sales.src_restaurant_sales s
-		WHERE NOT EXISTS (
-			SELECT 1 FROM bl_3nf.ce_employees t 
-			WHERE upper(s.employee_id) = upper(t.employee_src_id) AND 
-				upper(t.source_system) = 'SA_RESTAURANT_SALES' AND 
-				upper(t.source_entity) = 'SRC_RESTAURANT_SALES' AND
-				upper(s.employee_full_name) = upper(t.employee_full_name)
-		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
-	)
-	INSERT INTO bl_3nf.ce_employees (
-		employee_id,
-		employee_src_id,
-		source_system,
-		source_entity,
-		employee_full_name,
-		insert_dt,
-		update_dt
-	)
-	SELECT nextval('bl_3nf.ce_employees_id_seq'),
-		employee_src_id,
-		source_system,
-		source_entity,
-		employee_full_name,
-		insert_dt,
-		update_dt
-	FROM initial_table
-	ON CONFLICT (employee_src_id, source_system, source_entity) DO UPDATE
-	SET 
-	    employee_full_name = EXCLUDED.employee_full_name,
-	    update_dt = EXCLUDED.update_dt;
 
-    GET DIAGNOSTICS rows_aff = ROW_COUNT;
+    OPEN cur;
+    
+    -- Loop through the results
+    LOOP
+        -- Fetch the next row
+        FETCH cur INTO rec;
+        EXIT WHEN NOT FOUND;
+        
+        -- Insert or update the row
+        BEGIN
+            INSERT INTO bl_3nf.ce_employees (
+                employee_id,
+                employee_src_id,
+                source_system,
+                source_entity,
+                employee_full_name,
+                insert_dt,
+                update_dt
+            ) VALUES (
+                nextval('bl_3nf.ce_employees_id_seq'),
+                rec.employee_src_id,
+                rec.source_system,
+                rec.source_entity,
+                rec.employee_full_name,
+                rec.insert_dt,
+                rec.update_dt
+            )
+            ON CONFLICT (employee_src_id, source_system, source_entity) DO UPDATE
+            SET 
+                employee_full_name = EXCLUDED.employee_full_name,
+                update_dt = EXCLUDED.update_dt;
+
+		rows_aff := rows_aff + 1;
+
+        END;
+    END LOOP;
+    
+    -- Close the cursor
+    CLOSE cur;
+
+--	WITH initial_table AS (
+--		SELECT DISTINCT
+--			COALESCE (upper(s.employee_id), 'N.A.') AS employee_src_id,
+--			'SA_RESTAURANT_SALES' AS source_system,
+--			'SRC_RESTAURANT_SALES' AS source_entity,
+--			COALESCE (upper(s.employee_full_name), 'N.A.') AS employee_full_name,
+--			current_timestamp AS insert_dt,
+--			current_timestamp AS update_dt
+--		FROM 
+--			sa_restaurant_sales.src_restaurant_sales s
+--		WHERE NOT EXISTS (
+--			SELECT 1 FROM bl_3nf.ce_employees t 
+--			WHERE upper(s.employee_id) = upper(t.employee_src_id) AND 
+----				upper(t.source_system) = 'SA_RESTAURANT_SALES' AND 
+----				upper(t.source_entity) = 'SRC_RESTAURANT_SALES' AND
+--				upper(s.employee_full_name) = upper(t.employee_full_name)
+--		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
+--	)
+--	INSERT INTO bl_3nf.ce_employees (
+--		employee_id,
+--		employee_src_id,
+--		source_system,
+--		source_entity,
+--		employee_full_name,
+--		insert_dt,
+--		update_dt
+--	)
+--	SELECT nextval('bl_3nf.ce_employees_id_seq'),
+--		employee_src_id,
+--		source_system,
+--		source_entity,
+--		employee_full_name,
+--		insert_dt,
+--		update_dt
+--	FROM initial_table
+--	ON CONFLICT (employee_src_id, source_system, source_entity) DO UPDATE
+--	SET 
+--	    employee_full_name = EXCLUDED.employee_full_name,
+--	    update_dt = EXCLUDED.update_dt;
+--
+--    GET DIAGNOSTICS rows_aff = ROW_COUNT;
 
     SELECT count(*) INTO count_after FROM bl_3nf.ce_employees;
 
@@ -2067,13 +2144,13 @@ BEGIN
 			COALESCE((
                 SELECT DISTINCT cpt.pizza_type_id 
                 FROM bl_3nf.ce_pizzas_types cpt
-                LEFT JOIN bl_cl.lkp_pizzas_types lpt ON cpt.pizza_type_src_id::int = lpt.pizza_type_id
+                LEFT JOIN bl_cl.lkp_pizzas_types lpt ON cpt.pizza_type_src_id = lpt.pizza_type_id::text
                 WHERE UPPER(lpt.pizza_type_src_id) = UPPER(split_part(s.pizza_src_id, '_', 2)) AND UPPER(cpt.pizza_type_name) = UPPER(split_part(s.pizza_src_id, '_', 2))
             ), -1) AS pizza_type_id,
             COALESCE((
                 SELECT DISTINCT cps.pizza_size_id 
                 FROM bl_3nf.ce_pizzas_sizes cps
-                LEFT JOIN bl_cl.lkp_pizzas_sizes lps ON cps.pizza_size_src_id::int = lps.pizza_size_id
+                LEFT JOIN bl_cl.lkp_pizzas_sizes lps ON cps.pizza_size_src_id = lps.pizza_size_id::text
                 WHERE UPPER(lps.pizza_size_src_id) = UPPER(split_part(s.pizza_src_id, '_', 3)) AND UPPER(cps.pizza_size_name) = UPPER(split_part(s.pizza_src_id, '_', 3))
             ), -1) AS pizza_size_id,
 			current_timestamp AS insert_dt,
@@ -2167,7 +2244,7 @@ BEGIN
 			sa_online_sales.src_online_sales s
 		WHERE NOT EXISTS (
 			SELECT 1 FROM bl_3nf.ce_orders t
-			WHERE upper(t.order_src_id) = upper(s.order_id) AND 
+			WHERE upper(t.order_src_id) = COALESCE (upper(s.order_id), 'N.A.') AND 
 				upper(t.source_system) = 'SA_ONLINE_SALES' AND 
 				upper(t.source_entity) = 'SRC_ONLINE_SALES'
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt) FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
@@ -2185,7 +2262,7 @@ BEGIN
 			sa_restaurant_sales.src_restaurant_sales s
 		WHERE NOT EXISTS (
 			SELECT 1 FROM bl_3nf.ce_orders t
-			WHERE upper(t.order_src_id) = upper(s.order_id) AND 
+			WHERE upper(t.order_src_id) = COALESCE (upper(s.order_id), 'N.A.') AND 
 				upper(t.source_system) = 'SA_RESTAURANT_SALES' AND 
 				upper(t.source_entity) = 'SRC_RESTAURANT_SALES'
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt) FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
@@ -2273,12 +2350,14 @@ BEGIN
 			COALESCE ((
 				SELECT delivery_id FROM bl_3nf.ce_deliveries cd
 				LEFT JOIN bl_3nf.ce_couriers cc ON cd.courier_id = cc.courier_id
-				WHERE upper(s.delivery_id) = cd.delivery_src_id AND
-					upper(s.courier_id) = cc.courier_src_id
+				WHERE COALESCE(upper(s.delivery_id), 'N.A.') = cd.delivery_src_id AND
+					COALESCE(upper(s.courier_id), 'N.A.') = cc.courier_src_id AND
+					cd.source_system = 'SA_ONLINE_SALES' AND
+					cd.source_entity = 'SRC_ONLINE_SALES'
 			), -1) AS delivery_id,
 			COALESCE ((
 				SELECT customer_id FROM bl_3nf.ce_customers_scd ccs
-				WHERE upper(s.customer_id) = ccs.customer_src_id AND
+				WHERE COALESCE(upper(s.customer_id), 'N.A.') = ccs.customer_src_id AND
 					ccs.source_system = 'SA_ONLINE_SALES' AND
 					ccs.source_entity = 'SRC_ONLINE_SALES' AND
 					ccs.is_active = 'Y'
@@ -2286,18 +2365,20 @@ BEGIN
 			COALESCE ((
 				SELECT address_id FROM bl_3nf.ce_addresses ca
 				LEFT JOIN bl_3nf.ce_districts cd ON ca.district_id = cd.district_id
-				WHERE upper(s.district) = cd.district_src_id AND
-					upper(s.address) = ca.address_src_id
+				WHERE COALESCE(upper(s.district), 'N.A.') = cd.district_src_id AND
+					COALESCE(upper(s.address), 'N.A.') = ca.address_src_id AND 
+					ca.source_system = 'SA_ONLINE_SALES' AND
+					ca.source_entity = 'SRC_ONLINE_SALES'
 			), -1) AS address_id,
 			COALESCE ((
 				SELECT pizza_id FROM bl_3nf.ce_pizzas cp
 				LEFT JOIN bl_3nf.ce_pizzas_types cpt ON cp.pizza_type_id = cpt.pizza_type_id
---					AND cpt.source_system = 'BL_CL' AND cpt.source_entity = 'LKP_PIZZAS_TYPES'
+					AND cpt.source_system = 'BL_CL' AND cpt.source_entity = 'LKP_PIZZAS_TYPES'
 				LEFT JOIN bl_3nf.ce_pizzas_sizes cps ON cp.pizza_size_id = cps.pizza_size_id
---					AND cpt.source_system = 'BL_CL' AND cpt.source_entity = 'LKP_PIZZAS_SIZES'
-				WHERE upper(s.pizza_name) = cp.pizza_name AND
-					upper(s.pizza_type) = cpt.pizza_type_name AND
-					upper(s."size") = cps.pizza_size_name
+					AND cps.source_system = 'BL_CL' AND cps.source_entity = 'LKP_PIZZAS_SIZES'
+				WHERE COALESCE(upper(s.pizza_name), 'N.A.') = cp.pizza_name AND
+					COALESCE(upper(s.pizza_type), 'N.A.') = cpt.pizza_type_name AND
+					COALESCE(upper(s."size"), 'N.A.') = cps.pizza_size_name
 					AND cp.source_system = 'BL_CL' AND cp.source_entity = 'LKP_PIZZAS'
 			), -1) AS pizza_id,
 			COALESCE(s.quantity::int, 0) as quantity,
@@ -2306,26 +2387,23 @@ BEGIN
 			current_timestamp AS update_dt
 		FROM 
 			sa_online_sales.src_online_sales s
-		LEFT JOIN bl_3nf.ce_orders co ON upper(s.order_id) = co.order_src_id AND
+		LEFT JOIN bl_3nf.ce_orders co ON COALESCE(upper(s.order_id), 'N.A.') = co.order_src_id AND
 			co.source_system = 'SA_ONLINE_SALES' AND
 			co.source_entity = 'SRC_ONLINE_SALES'
 		WHERE (s.load_timestamp) > (SELECT max(last_src_dt) FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
 	),  restaurant_sales AS (
 		SELECT
-			COALESCE ((
-				SELECT order_id FROM bl_3nf.ce_orders co
-				WHERE upper(s.order_id) = co.order_src_id AND
-					co.source_system = 'SA_RESTAURANT_SALES' AND
-					co.source_entity = 'SRC_RESTAURANT_SALES'
-			), -1) AS order_id,
+			COALESCE (co.order_id, -1) AS order_id,
 			COALESCE ((
 				SELECT employee_id FROM bl_3nf.ce_employees ce
-				WHERE upper(s.employee_id) = ce.employee_src_id
+				WHERE COALESCE(upper(s.employee_id), 'N.A.') = ce.employee_src_id AND
+					ce.source_system = 'SA_RESTAURANT_SALES' AND
+					ce.source_entity = 'SRC_RESTAURANT_SALES'
 			), -1) AS employee_id,
 			-1 AS delivery_id,
 			COALESCE ((
 				SELECT customer_id FROM bl_3nf.ce_customers_scd ccs
-				WHERE upper(s.customer_id) = ccs.customer_src_id AND
+				WHERE COALESCE(upper(s.customer_id), 'N.A.') = ccs.customer_src_id AND
 					ccs.source_system = 'SA_RESTAURANT_SALES' AND
 					ccs.source_entity = 'SRC_RESTAURANT_SALES' AND
 					ccs.is_active = 'Y'
@@ -2334,12 +2412,12 @@ BEGIN
 			COALESCE ((
 				SELECT pizza_id FROM bl_3nf.ce_pizzas cp
 				LEFT JOIN bl_3nf.ce_pizzas_types cpt ON cp.pizza_type_id = cpt.pizza_type_id
---					AND cpt.source_system = 'BL_CL' AND cpt.source_entity = 'LKP_PIZZAS_TYPES'
+					AND cpt.source_system = 'BL_CL' AND cpt.source_entity = 'LKP_PIZZAS_TYPES'
 				LEFT JOIN bl_3nf.ce_pizzas_sizes cps ON cp.pizza_size_id = cps.pizza_size_id
---					AND cpt.source_system = 'BL_CL' AND cpt.source_entity = 'LKP_PIZZAS_SIZES'
-				WHERE upper(s.pizza_name) = cp.pizza_name AND
-					upper(s.pizza_type) = cpt.pizza_type_name AND
-					upper(s."size") = cps.pizza_size_name
+					AND cps.source_system = 'BL_CL' AND cps.source_entity = 'LKP_PIZZAS_SIZES'
+				WHERE COALESCE(upper(s.pizza_name), 'N.A.') = cp.pizza_name AND
+					COALESCE(upper(s.pizza_type), 'N.A.') = cpt.pizza_type_name AND
+					COALESCE(upper(s."size"), 'N.A.') = cps.pizza_size_name
 					AND cp.source_system = 'BL_CL' AND cp.source_entity = 'LKP_PIZZAS'
 			), -1) AS pizza_id,
 			COALESCE(s.quantity::int, 0) as quantity,
@@ -2348,6 +2426,9 @@ BEGIN
 			current_timestamp AS update_dt
 		FROM 
 			sa_restaurant_sales.src_restaurant_sales s
+		LEFT JOIN bl_3nf.ce_orders co ON COALESCE(upper(s.order_id), 'N.A') = co.order_src_id AND
+			co.source_system = 'SA_RESTAURANT_SALES' AND
+			co.source_entity = 'SRC_RESTAURANT_SALES'
 		WHERE (s.load_timestamp) > (SELECT max(last_src_dt) FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
 	)
 	INSERT INTO bl_3nf.ce_sales (
