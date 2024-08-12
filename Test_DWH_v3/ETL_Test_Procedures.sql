@@ -1819,7 +1819,6 @@ CREATE OR REPLACE PROCEDURE bl_cl.ce_employees_procedure(
 DECLARE 
     count_before INT;
     count_after INT;
---    rows_aff INT;
     rows_aff INT := 0;
 
     rec RECORD;
@@ -1857,13 +1856,10 @@ BEGIN
 
     OPEN cur;
     
-    -- Loop through the results
     LOOP
-        -- Fetch the next row
         FETCH cur INTO rec;
         EXIT WHEN NOT FOUND;
         
-        -- Insert or update the row
         BEGIN
             INSERT INTO bl_3nf.ce_employees (
                 employee_id,
@@ -1892,50 +1888,7 @@ BEGIN
         END;
     END LOOP;
     
-    -- Close the cursor
     CLOSE cur;
-
---	WITH initial_table AS (
---		SELECT DISTINCT
---			COALESCE (upper(s.employee_id), 'N.A.') AS employee_src_id,
---			'SA_RESTAURANT_SALES' AS source_system,
---			'SRC_RESTAURANT_SALES' AS source_entity,
---			COALESCE (upper(s.employee_full_name), 'N.A.') AS employee_full_name,
---			current_timestamp AS insert_dt,
---			current_timestamp AS update_dt
---		FROM 
---			sa_restaurant_sales.src_restaurant_sales s
---		WHERE NOT EXISTS (
---			SELECT 1 FROM bl_3nf.ce_employees t 
---			WHERE upper(s.employee_id) = upper(t.employee_src_id) AND 
-----				upper(t.source_system) = 'SA_RESTAURANT_SALES' AND 
-----				upper(t.source_entity) = 'SRC_RESTAURANT_SALES' AND
---				upper(s.employee_full_name) = upper(t.employee_full_name)
---		) AND (s.load_timestamp) > (SELECT max(last_src_dt)::timestamp FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
---	)
---	INSERT INTO bl_3nf.ce_employees (
---		employee_id,
---		employee_src_id,
---		source_system,
---		source_entity,
---		employee_full_name,
---		insert_dt,
---		update_dt
---	)
---	SELECT nextval('bl_3nf.ce_employees_id_seq'),
---		employee_src_id,
---		source_system,
---		source_entity,
---		employee_full_name,
---		insert_dt,
---		update_dt
---	FROM initial_table
---	ON CONFLICT (employee_src_id, source_system, source_entity) DO UPDATE
---	SET 
---	    employee_full_name = EXCLUDED.employee_full_name,
---	    update_dt = EXCLUDED.update_dt;
---
---    GET DIAGNOSTICS rows_aff = ROW_COUNT;
 
     SELECT count(*) INTO count_after FROM bl_3nf.ce_employees;
 
@@ -2246,7 +2199,8 @@ BEGIN
 			SELECT 1 FROM bl_3nf.ce_orders t
 			WHERE upper(t.order_src_id) = COALESCE (upper(s.order_id), 'N.A.') AND 
 				upper(t.source_system) = 'SA_ONLINE_SALES' AND 
-				upper(t.source_entity) = 'SRC_ONLINE_SALES'
+				upper(t.source_entity) = 'SRC_ONLINE_SALES' AND 
+				COALESCE (TO_TIMESTAMP(s."timestamp", 'DD-MM-YY HH24:MI')::TIMESTAMP WITHOUT TIME ZONE, '1900-01-01 00:00:00'::timestamp) = t.order_timestamp
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt) FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_ONLINE_SALES')
 	),  restaurant_orders AS (
 		SELECT DISTINCT
@@ -2264,7 +2218,9 @@ BEGIN
 			SELECT 1 FROM bl_3nf.ce_orders t
 			WHERE upper(t.order_src_id) = COALESCE (upper(s.order_id), 'N.A.') AND 
 				upper(t.source_system) = 'SA_RESTAURANT_SALES' AND 
-				upper(t.source_entity) = 'SRC_RESTAURANT_SALES'
+				upper(t.source_entity) = 'SRC_RESTAURANT_SALES' AND 
+				COALESCE (TO_TIMESTAMP(s."timestamp", 'DD-MM-YY HH24:MI')::TIMESTAMP WITHOUT TIME ZONE, '1900-01-01 00:00:00'::timestamp) = t.order_timestamp AND
+				COALESCE (s.in_or_out::bl_3nf.type_offline_order, 'N.A.'::bl_3nf.type_offline_order) = t.offline_order_type
 		) AND (s.load_timestamp) > (SELECT max(last_src_dt) FROM bl_cl.load_metadata lm WHERE src_tablename = 'SRC_RESTAURANT_SALES')
 	)
 	INSERT INTO bl_3nf.ce_orders (
@@ -2300,7 +2256,13 @@ BEGIN
 		offline_order_type,
 		insert_dt,
 		update_dt 
-	FROM restaurant_orders;
+	FROM restaurant_orders
+	ON CONFLICT (order_src_id, source_system, source_entity) DO UPDATE
+	SET 
+	    update_dt = EXCLUDED.update_dt,
+		order_timestamp = EXCLUDED.order_timestamp,
+		order_type = EXCLUDED.order_type,
+		offline_order_type = EXCLUDED.offline_order_type;
 
 	GET DIAGNOSTICS rows_aff = ROW_COUNT;
 
@@ -2364,7 +2326,7 @@ BEGIN
 			), -1) AS customer_id,
 			COALESCE ((
 				SELECT address_id FROM bl_3nf.ce_addresses ca
-				LEFT JOIN bl_3nf.ce_districts cd ON ca.district_id = cd.district_id
+				LEFT JOIN bl_3nf.ce_districts cd ON ca.district_id = cd.district_id 
 				WHERE COALESCE(upper(s.district), 'N.A.') = cd.district_src_id AND
 					COALESCE(upper(s.address), 'N.A.') = ca.address_src_id AND 
 					ca.source_system = 'SA_ONLINE_SALES' AND
@@ -2972,32 +2934,40 @@ DECLARE
     rows_aff INT := 0;
     order_rec bl_dm.order_record_type;
     row_cursor CURSOR FOR
-        SELECT DISTINCT
-            COALESCE(co.order_id, -1) AS order_src_id,
-            'BL_3NF' AS source_system,
-            'CE_ORDERS' AS source_entity,
-            COALESCE(order_src_id, 'N.A.') AS order_name,
-            COALESCE(cs.employee_id, -1) AS employee_src_id,
-            COALESCE(ce.employee_full_name, 'N.A.') AS employee_full_name,
-            order_type AS order_type,
-            offline_order_type AS offline_order_type,
-            COALESCE(cs.delivery_id, -1) AS delivery_src_id,
-            COALESCE(cd.delivery_name, 'N.A.') AS delivery_name,
-            COALESCE(cd.courier_id, -1) AS courier_src_id,
-            COALESCE(cc.courier_full_name, 'N.A.') AS courier_full_name,
-            current_timestamp AS insert_dt,
-            current_timestamp AS update_dt
-        FROM bl_3nf.ce_orders co
+		SELECT DISTINCT
+		    COALESCE(co.order_id, -1) AS order_src_id,
+		    'BL_3NF' AS source_system,
+		    'CE_ORDERS' AS source_entity,
+		    COALESCE(order_src_id, 'N.A.') AS order_name,
+		    COALESCE(cs.employee_id, -1) AS employee_src_id,
+		    COALESCE(ce.employee_full_name, 'N.A.') AS employee_full_name,
+		    co.order_type AS order_type,
+		    co.offline_order_type AS offline_order_type,
+		    COALESCE(cs.delivery_id, -1) AS delivery_src_id,
+		    COALESCE(cd.delivery_name, 'N.A.') AS delivery_name,
+		    COALESCE(cd.courier_id, -1) AS courier_src_id,
+		    COALESCE(cc.courier_full_name, 'N.A.') AS courier_full_name,
+		    current_timestamp AS insert_dt,
+		    current_timestamp AS update_dt
+		FROM bl_3nf.ce_orders co
 		LEFT JOIN bl_3nf.ce_sales cs ON co.order_id = cs.order_id
-        LEFT JOIN bl_3nf.ce_deliveries cd ON cs.delivery_id = cd.delivery_id
+		LEFT JOIN bl_3nf.ce_deliveries cd ON cs.delivery_id = cd.delivery_id
 		LEFT JOIN bl_3nf.ce_couriers cc ON cd.courier_id = cc.courier_id
 		LEFT JOIN bl_3nf.ce_employees ce ON cs.employee_id = ce.employee_id
-        WHERE NOT EXISTS (
-            SELECT 1 FROM bl_dm.dim_orders t
-            WHERE upper(co.order_id::TEXT) = upper(t.order_src_id::TEXT) AND 
-                upper(co.order_type::TEXT) = upper(t.order_type::TEXT) AND 
-                upper(co.order_src_id::TEXT) = upper(t.order_name::TEXT)
-        ) AND co.order_id > 0 AND (co.update_dt) > (SELECT max(load_dt) FROM bl_cl.load_metadata);
+		WHERE NOT EXISTS (
+		    SELECT 1 FROM bl_dm.dim_orders t
+		    WHERE upper(co.order_id::TEXT) = upper(t.order_src_id::TEXT) AND 
+		        upper(co.order_type::TEXT) = upper(t.order_type::TEXT) AND 
+		        upper(co.order_src_id::TEXT) = upper(t.order_name::TEXT) AND 
+		        COALESCE(cs.employee_id, -1)::text = t.employee_src_id AND 
+		        COALESCE(ce.employee_full_name, 'N.A.') = t.employee_full_name AND 
+		        co.order_type::text = t.order_type AND 
+		        co.offline_order_type::text = t.offline_order_type AND 
+		        COALESCE(cs.delivery_id, -1)::text = t.delivery_src_id AND 
+		        COALESCE(cd.delivery_name, 'N.A.') = t.delivery_name AND
+		        COALESCE(cd.courier_id, -1)::text = t.courier_src_id AND 
+		        COALESCE(cc.courier_full_name, 'N.A.') = t.courier_full_name
+		) AND co.order_id > 0 AND (co.update_dt) > (SELECT max(load_dt) FROM bl_cl.load_metadata);
 BEGIN 
 
 	username := current_user;
@@ -3031,7 +3001,19 @@ BEGIN
             order_rec.courier_full_name, 
             order_rec.insert_dt, 
             order_rec.update_dt
-        );
+        )	
+		ON CONFLICT (order_src_id, source_system, source_entity) DO UPDATE
+		SET 
+		    update_dt = EXCLUDED.update_dt,
+			order_name = EXCLUDED.order_name,
+			employee_src_id = EXCLUDED.employee_src_id,
+			employee_full_name = EXCLUDED.employee_full_name,
+			order_type = EXCLUDED.order_type,
+			offline_order_type = EXCLUDED.offline_order_type,
+			delivery_src_id = EXCLUDED.delivery_src_id,
+			delivery_name = EXCLUDED.delivery_name,
+			courier_src_id = EXCLUDED.courier_src_id,
+			courier_full_name = EXCLUDED.courier_full_name;
 
 	rows_aff := rows_aff + 1;
 
@@ -3234,4 +3216,3 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
---CALL bl_cl.master_procedure();

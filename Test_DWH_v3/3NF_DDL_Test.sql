@@ -1,7 +1,5 @@
 SET ROLE postgres;
 
---RESET ROLE ;
-
 CREATE SCHEMA IF NOT EXISTS bl_3nf;
 
 DO $$

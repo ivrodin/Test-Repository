@@ -27,7 +27,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_1 (
 	address varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/online/pizzaplace_online_init_1.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_2 (
@@ -47,7 +46,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_2 (
 	address varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/online/pizzaplace_online_init_2.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_3 (
@@ -67,7 +65,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_3 (
 	address varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/online/pizzaplace_online_init_3.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_4 (
@@ -87,7 +84,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_4 (
 	address varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/online/pizzaplace_online_init_4.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_5 (
@@ -107,7 +103,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_5 (
 	address varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/online/pizzaplace_online_init_5.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_6 (
@@ -127,7 +122,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_6 (
 	address varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/online/pizzaplace_online_init_6.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_7 (
@@ -147,7 +141,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_7 (
 	address varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/online/pizzaplace_online_init_7.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_8 (
@@ -167,7 +160,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_8 (
 	address varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/online/pizzaplace_online_init_8.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_9 (
@@ -187,7 +179,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_online_sales.ext_online_sales_9 (
 	address varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_online_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/demo_csvs/pizzaplace_online_incr.csv', FORMAT 'csv', HEADER 'true');
 
 
@@ -205,7 +196,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_1 (
 	in_or_out varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/rest/pizzaplace_rest_init_1.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_2 (
@@ -222,7 +212,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_2 (
 	in_or_out varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/rest/pizzaplace_rest_init_2.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_3 (
@@ -239,7 +228,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_3 (
 	in_or_out varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/rest/pizzaplace_rest_init_3.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_4 (
@@ -256,7 +244,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_4 (
 	in_or_out varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/rest/pizzaplace_rest_init_4.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_5 (
@@ -273,7 +260,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_5 (
 	in_or_out varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/rest/pizzaplace_rest_init_5.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_6 (
@@ -290,7 +276,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_6 (
 	in_or_out varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/rest/pizzaplace_rest_init_6.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_7 (
@@ -307,7 +292,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_7 (
 	in_or_out varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/rest/pizzaplace_rest_init_7.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_8 (
@@ -324,7 +308,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_8 (
 	in_or_out varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/parts_csvs/rest/pizzaplace_rest_init_8.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_9 (
@@ -341,7 +324,6 @@ CREATE FOREIGN TABLE IF NOT EXISTS sa_restaurant_sales.ext_restaurant_sales_9 (
 	in_or_out varchar(255),
 	quantity varchar(255)
 ) SERVER csv_log
---OPTIONS (filename 'csv_files/test_csvs/pizzaplace_rest_test_1.csv', FORMAT 'csv', HEADER 'true');
 OPTIONS (filename 'csv_files/demo_csvs/pizzaplace_rest_incr.csv', FORMAT 'csv', HEADER 'true');
 
 CREATE TABLE IF NOT EXISTS sa_restaurant_sales.src_restaurant_sales (

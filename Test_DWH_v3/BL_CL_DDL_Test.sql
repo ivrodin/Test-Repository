@@ -1,7 +1,5 @@
 SET ROLE postgres;
 
---RESET ROLE ;
-
 CREATE SCHEMA IF NOT EXISTS bl_cl;
 
 CREATE SEQUENCE IF NOT EXISTS bl_cl.lkp_pizzas_id_seq

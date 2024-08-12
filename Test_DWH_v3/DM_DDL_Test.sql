@@ -1,7 +1,5 @@
 SET ROLE postgres;
 
---RESET ROLE ;
-
 CREATE SCHEMA IF NOT EXISTS bl_dm;
 
 CREATE SEQUENCE IF NOT EXISTS bl_dm.dim_orders_surr_id_seq
@@ -72,7 +70,8 @@ CREATE TABLE IF NOT EXISTS bl_dm.dim_orders (
 	courier_src_id varchar(255) NOT NULL,
 	courier_full_name varchar(255) NOT NULL,
 	insert_dt timestamp NOT NULL,
-	update_dt timestamp NOT NULL
+	update_dt timestamp NOT NULL,
+	CONSTRAINT dim_orders_unique UNIQUE (order_src_id, source_system, source_entity)
 );
 
 -- Creating comosite type for cursor instead of RECORD
