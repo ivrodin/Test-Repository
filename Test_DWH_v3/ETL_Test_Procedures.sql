@@ -3069,7 +3069,7 @@ BEGIN
 				WHEN COALESCE (dd.date_id, '1900-01-01'::date) = '1900-01-01'::date THEN 'N.A.'
 				ELSE COALESCE (dt.time_id, 'N.A.')
 			END AS event_time,
-			COALESCE (co.quantity, 0) as quantity,
+			COALESCE (co.quantity, 0) as quantity, 
             COALESCE (co.price, 0) AS price,
 			(co.quantity * co.price) AS fct_cost_order,
             current_timestamp AS insert_dt,
@@ -3200,19 +3200,43 @@ $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE bl_cl.master_procedure()
 AS $$
-BEGIN 
+DECLARE
+    rec RECORD;
+    v_status TEXT;
+    v_proc_name TEXT;
+BEGIN
 
-	INSERT INTO bl_cl.procedure_log (
-		username,
-		table_name,
-		procedure_name,
-		rows_updated,
-		rows_inserted,
-		procedure_timestamp,
-		status
-	)
-	SELECT username, table_name, procedure_name, rows_updated, rows_inserted, procedure_timestamp, status FROM bl_cl.procedures_to_log();
+    BEGIN
+
+        INSERT INTO bl_cl.procedure_log (
+            username,
+            table_name,
+            procedure_name,
+            rows_updated,
+            rows_inserted,
+            procedure_timestamp,
+            status
+        )
+        SELECT username, table_name, procedure_name, rows_updated, rows_inserted, procedure_timestamp, status
+        FROM bl_cl.procedures_to_log();
+
+        FOR rec IN
+            SELECT status, procedure_name
+            FROM bl_cl.procedure_log
+            WHERE procedure_timestamp = (SELECT MAX(procedure_timestamp) FROM bl_cl.procedure_log)
+        LOOP
+            v_status := rec.status;
+            v_proc_name := rec.procedure_name;
+
+            IF upper(v_status) <> 'SUCCESS' THEN
+                RAISE NOTICE 'Rolling back ETL due to procedure: %, status: %', v_proc_name, v_status;
+                ROLLBACK;
+                RETURN;
+            END IF;
+        END LOOP;
+    END;
+
+COMMIT;
 
 END;
 $$ LANGUAGE plpgsql;
-
